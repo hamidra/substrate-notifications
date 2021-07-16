@@ -13,7 +13,7 @@ export class EmailChannel {
     const types = event.typeDef;
     // 1- prepare notification email
     let data = `${event.section}:${event.method} \n
-                \t${event.meta.documentation.toString()}`;
+                ${event.meta.documentation.toString()}`;
 
     // Loop through each of the parameters, displaying the type and data
     /*event.data.forEach((data, index) => {

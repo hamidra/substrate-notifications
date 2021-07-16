@@ -27,7 +27,6 @@ export class Council {
     let addresses = (await api.query.council.members()).toHuman();
     for (let address of addresses) {
       let identity = (await api.query.identity.identityOf(address)).toHuman();
-      console.log(identity);
       let info: Record<string, any> = {};
       info.display = identity?.info?.display?.Raw;
       info.legal = identity?.info?.legal?.Raw;
@@ -43,7 +42,7 @@ export class Watcher {
     const api = await Api.getApi();
 
     // Subscribe to system events via storage
-    api.query.system.events((events) => {
+    return api.query.system.events((events) => {
       console.log(`\nReceived ${events.length} events:`);
       eventHub.send(events);
     });

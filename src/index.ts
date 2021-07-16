@@ -1,30 +1,16 @@
-import { Watcher, Council } from './chian';
-import { EmailChannel } from './channels/email';
-import { EventHub, Pallets } from './eventHub';
+import express from 'express';
+import service from './service';
 
-const createWatcher = async () => {
-  let eventHub = new EventHub();
+const app = express();
+const port = 8080; // default port to listen
 
-  let emailSubscribers: any[] = [];
-  let council = new Council();
-  // init Council pallet to load members from chain
-  await council.loadMembers();
-  council.members.forEach((member, key) => {
-    if (member?.email) {
-      emailSubscribers.push(member?.email);
-    }
-  });
-  eventHub.subscribe(
-    [Pallets.COUNCIL, Pallets.DEMOCRACY, Pallets.BALANCES],
-    new EmailChannel(emailSubscribers)
-  );
-  let watcher = new Watcher();
-  return { eventHub, watcher };
-};
+// define a route handler for the default home page
+app.get('/', (req, res) => {
+  res.send('Hello world!');
+});
 
-let watch = async () => {
-  let { watcher, eventHub } = await createWatcher();
-  watcher.start(eventHub);
-};
-
-watch().catch((err) => console.log(err));
+// start the Express server
+app.listen(port, () => {
+  console.log(`server started at http://localhost:${port}`);
+  service.start().catch((err) => console.log(err));
+});
