@@ -4,20 +4,26 @@
 const SibApiV3Sdk = require('sib-api-v3-typescript');
 export class EmailChannel {
   provider;
-
-  constructor() {
+  emails;
+  constructor(emails: any[]) {
     this.provider = new EmailProvider();
+    this.emails = emails;
   }
   async notify(event: any) {
     const types = event.typeDef;
-    console.log(`${event.section}:${event.method}`);
-
-    console.log(`\t${event.meta.documentation.toString()}`);
+    // 1- prepare notification email
+    let data = `${event.section}:${event.method} \n
+                \t${event.meta.documentation.toString()}`;
 
     // Loop through each of the parameters, displaying the type and data
-    event.data.forEach((data, index) => {
+    /*event.data.forEach((data, index) => {
       console.log(`\t${types[index].type}: ${data.toString()}`);
-    });
+    });*/
+
+    // 2- submite notification
+    for (let email of this.emails) {
+      this.provider.sendNotification(email, data);
+    }
   }
 }
 
@@ -26,20 +32,11 @@ export class EmailProvider {
   constructor() {
     this.apiKey = process.env.EmailApiKey || '';
   }
-  async sendNotification(event) {
+  async sendNotification(email, data) {
     let apiInstance = new SibApiV3Sdk.AccountApi();
-
-    // Configure API key authorization: apiKey
-
-    apiInstance.setApiKey(SibApiV3Sdk.AccountApiApiKeys.apiKey, this.apiKey);
-
-    apiInstance.getAccount().then(
-      function (data) {
-        console.log(`API called successfully. Returned data:`, data);
-      },
-      function (error) {
-        console.error('error');
-      }
-    );
+    console.log('sending email');
+    console.log(email);
+    console.log(data);
+    console.log('--------------------');
   }
 }
