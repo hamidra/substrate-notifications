@@ -40,3 +40,17 @@ export class EmailProvider {
     console.log('--------------------');
   }
 }
+
+export class AmazonEmailProvider {
+  apiKey;
+  constructor() {
+    this.apiKey = process.env.EmailApiKey || '';
+  }
+  async sendNotification(email, data) {
+    let apiInstance = new SibApiV3Sdk.AccountApi();
+    console.log('sending email');
+    console.log(email);
+    console.log(data);
+    console.log('--------------------');
+  }
+}
