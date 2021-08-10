@@ -21,9 +21,7 @@ export class EmailChannel {
     });*/
 
     // 2- submite notification
-    for (let email of this.emails) {
-      this.provider.sendNotification(email, data);
-    }
+    this.provider.sendNotification(this.emails, data);
   }
 }
 
@@ -32,12 +30,38 @@ export class EmailProvider {
   constructor() {
     this.apiKey = process.env.EmailApiKey || '';
   }
-  async sendNotification(email, data) {
-    let apiInstance = new SibApiV3Sdk.AccountApi();
+  async sendNotification(emails, data) {
     console.log('sending email');
-    console.log(email);
+    console.log(emails);
     console.log(data);
     console.log('--------------------');
+
+    var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+    // Configure API key authorization: api-key
+
+    apiInstance.authentications['apiKey'].apiKey = this.apiKey;
+    apiInstance.authentications['partnerKey'].apiKey = this.apiKey;
+
+    let recipients = emails.forEach((email) => {
+      email;
+    });
+    var sendSmtpEmail = {
+      to: [{ email: 'hamid.alipour@gmail.com' }],
+      templateId: 1,
+      params: {
+        motion: '#1',
+      },
+    };
+
+    apiInstance.sendTransacEmail(sendSmtpEmail).then(
+      function (data) {
+        console.log('API called successfully. Returned data: ' + data);
+      },
+      function (error) {
+        console.error(error);
+      }
+    );
   }
 }
 
@@ -46,10 +70,10 @@ export class AmazonEmailProvider {
   constructor() {
     this.apiKey = process.env.EmailApiKey || '';
   }
-  async sendNotification(email, data) {
+  async sendNotification(emails, data) {
     let apiInstance = new SibApiV3Sdk.AccountApi();
     console.log('sending email');
-    console.log(email);
+    console.log(emails);
     console.log(data);
     console.log('--------------------');
   }
