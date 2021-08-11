@@ -34,8 +34,8 @@
   "dependencies": {
     "@polkadot/api": "^4.17.1",
     "@polkadot/types": "^4.17.1",
+    "@sendinblue/client": "^3.0.1",
     "express": "^4.17.1",
-    "install": "^0.13.0",
-    "sib-api-v3-typescript": "^2.2.2"
+    "install": "^0.13.0"
   }
 }

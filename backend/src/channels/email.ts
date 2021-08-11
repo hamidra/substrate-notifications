@@ -1,7 +1,7 @@
 /**
  * An email service provider to send notifications through email channels.
  */
-const SibApiV3Sdk = require('sib-api-v3-typescript');
+const SibApiV3Sdk = require('@sendinblue/client');
 export class EmailChannel {
   provider;
   emails;
@@ -40,8 +40,14 @@ export class EmailProvider {
 
     // Configure API key authorization: api-key
 
-    apiInstance.authentications['apiKey'].apiKey = this.apiKey;
-    apiInstance.authentications['partnerKey'].apiKey = this.apiKey;
+    apiInstance.setApiKey(
+      SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
+      this.apiKey
+    );
+    apiInstance.setApiKey(
+      SibApiV3Sdk.TransactionalEmailsApiApiKeys.partnerKey,
+      this.apiKey
+    );
 
     let recipients = emails.forEach((email) => {
       email;
