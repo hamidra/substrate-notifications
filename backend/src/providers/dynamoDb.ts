@@ -1,8 +1,10 @@
 import * as dynamooseClient from 'dynamoose';
-dynamooseClient.aws.sdk.config.update({
-  accessKeyId: 'AKID',
-  secretAccessKey: 'SECRET',
-  region: 'us-east-1',
-});
+import * as creds from '../secrets/dynamoDb-creds.json';
+console.log(process.cwd());
+dynamooseClient.aws.sdk.config.loadFromPath(
+  './src/secrets/dynamoDb-creds.json'
+);
+
+dynamooseClient.aws.sdk.config.logger = console;
 
 export { dynamooseClient };

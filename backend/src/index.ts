@@ -14,8 +14,7 @@ app.get('/unsubscribe/:email', (req, res) => {
 // define a route handler for the default home page
 app.get('/subscribe/:email', (req, res) => {
   subscribe(req.params.email, ['democracy']);
-  res.send(`your account with address : ${req.params.email} was unsubscribed`);
-  unsubscribe(req.params.id, []);
+  res.send(`your account with address : ${req.params.email} was subscribed`);
 });
 
 // start the Express server
