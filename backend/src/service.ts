@@ -1,22 +1,23 @@
-import { Watcher, Council } from './chian';
+import { Watcher, Council, Pallets } from './chain';
 import { EmailChannel } from './channels/email';
-import { EventHub, Pallets } from './eventHub';
+import { EventHub } from './eventHub';
 
 const createWatcher = async () => {
   let eventHub = new EventHub();
 
-  let emailSubscribers: any[] = [];
+  let emailChannelSubscribers: any[] = [];
   let council = new Council();
   // init Council pallet to load members from chain
   await council.loadMembers();
   council.members.forEach((member, key) => {
     if (member?.email) {
-      emailSubscribers.push(member?.email);
+      emailChannelSubscribers.push(member?.email);
     }
   });
+  console.log(council.members);
   eventHub.subscribe(
     [Pallets.COUNCIL, Pallets.DEMOCRACY, Pallets.BALANCES],
-    new EmailChannel(emailSubscribers)
+    new EmailChannel(emailChannelSubscribers)
   );
   let watcher = new Watcher();
   return { eventHub, watcher };

@@ -1,23 +1,20 @@
-export enum Pallets {
-  COUNCIL = 'council',
-  DEMOCRACY = 'democracy',
-  BALANCES = 'balances',
-}
-
 /**
- * An eventhub to create event streams and let the event consumers subscribe to event queues
+ * An eventhub to create event streams and let the event consumersChannels subscribe to event queues
  */
+import { Pallets } from './chain';
+
 export class EventHub {
   subscribers: Map<string, any[]>;
   constructor() {
     this.subscribers = new Map(
+      // add a placeholder for each pallet in Pallets enum
       Object.values(Pallets).map((pallet) => [pallet, []])
     );
   }
-  subscribe(pallets: Pallets[], consumer: any) {
+  subscribe(pallets: Pallets[], consumerChannel: any) {
     let subscribers = this.subscribers;
     pallets?.forEach(function (pallet) {
-      subscribers.has(pallet) && subscribers.get(pallet)?.push(consumer);
+      subscribers.has(pallet) && subscribers.get(pallet)?.push(consumerChannel);
     });
   }
   send(events: any) {
@@ -28,7 +25,7 @@ export class EventHub {
       console.log(phase.toString(), pallet);
 
       if (this.subscribers.has(pallet)) {
-        this.subscribers.get(pallet)?.forEach(function (subscriber) {
+        this.subscribers.get(pallet)?.forEach((subscriber) => {
           subscriber.notify(event);
         });
       }

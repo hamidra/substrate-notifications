@@ -8,6 +8,12 @@ import { u8aToString } from '@polkadot/util';
 
 const chainUrl = 'wss://rpc.polkadot.io';
 
+export enum Pallets {
+  COUNCIL = 'council',
+  DEMOCRACY = 'democracy',
+  BALANCES = 'balances',
+}
+
 export class Api {
   static api: any;
   static async getApi() {
@@ -48,3 +54,17 @@ export class Watcher {
     });
   }
 }
+
+export const parseEvent = (event) => {
+  try {
+    let parsed = {
+      pallet: event?.section,
+      method: event?.method,
+      params: event?.data,
+    };
+    return { parsed };
+  } catch (error) {
+    console.log(error);
+    return { error };
+  }
+};
