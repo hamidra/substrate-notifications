@@ -18,7 +18,11 @@ const createWatcher = async () => {
     if (member?.email) {
       emailChannelSubscribers.push({ address, email: member?.email });
       subscribePromises.push(
-        subscribe({ address, email: member.email, pallets: [Pallets.COUNCIL] })
+        subscribe({
+          address,
+          email: member.email,
+          pallets: [Pallets.COUNCIL],
+        })
       );
     }
   });

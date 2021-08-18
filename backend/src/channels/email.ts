@@ -5,22 +5,36 @@ const SibApiV3Sdk = require('@sendinblue/client');
 import console from 'console';
 import { parseEvent, Pallets } from '../chain';
 import { apiKey } from '../secrets/sendinBlue-apikey.json';
+import { getPalletSubscriptions } from '../controllers/subscriptionController';
 
 export class EmailChannel {
   provider;
-  emails;
-  constructor(emails: any[]) {
+  subscribers;
+  constructor(subscribers: any[]) {
     this.provider = new EmailProvider();
-    this.emails = emails;
+    this.subscribers = subscribers;
   }
   async notify(rawEvent: any) {
     let { parsed: event, error } = parseEvent(rawEvent);
-
     if (error) {
       console.log(`An error happened while parsing an event`);
       console.error(error);
+      return;
     }
-    this.provider.sendNotification(this.emails, event);
+
+    let getSubsPromises: any[] = [];
+    this.subscribers.forEach(({ address }) =>
+      getSubsPromises.push(getPalletSubscriptions(address))
+    );
+    let subs = await Promise.all(getSubsPromises);
+
+    // create the email list:
+    // 1. filter the subscriptions that have subscribed for that pallet
+    // 2. map the subs to their registered emails
+    let emails = subs
+      .filter(({ pallets }) => event?.pallet && pallets?.has(event.pallet))
+      .map(({ email }) => email);
+    this.provider.sendNotification(emails, event);
   }
 }
 
@@ -35,11 +49,16 @@ export class EmailProvider {
       case Pallets.BALANCES:
         if (event?.method === 'Transfer') {
           let params = {
-            from: event?.params?.[0],
-            to: event?.params?.[1],
-            value: event?.params?.[2],
+            from: event?.params?.[0]?.toHuman(),
+            to: event?.params?.[1]?.toHuman(),
+            value: event?.params?.[2].toHuman(),
           };
           let templateId = 2;
+          return {
+            to: recipients,
+            templateId,
+            params,
+          };
         }
         return null;
         break;
@@ -58,6 +77,7 @@ export class EmailProvider {
             params,
           };
         }
+        return null;
         break;
       default:
         return null;
@@ -91,6 +111,7 @@ export class EmailProvider {
       console.log(
         `sending email for event: ${event?.pallet}::${event?.method}`
       );
+
       apiInstance.sendTransacEmail(sendSmtpEmail).then(
         function (data) {
           console.log('API called successfully');

@@ -45,7 +45,7 @@ export const unsubscribe = async ({ address, pallets }) => {
 export const getPalletSubscriptions = async (address) => {
   try {
     let sub = await subscriptionModel.get(address);
-    return sub?.pallets || [];
+    return sub || [];
   } catch (error) {
     console.error(error);
   }
