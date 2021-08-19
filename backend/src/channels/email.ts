@@ -6,6 +6,9 @@ import console from 'console';
 import { parseEvent, Pallets } from '../chain';
 import { apiKey } from '../secrets/sendinBlue-apikey.json';
 import { getPalletSubscriptions } from '../controllers/subscriptionController';
+import url, { URL } from 'url';
+
+let serviceUrlStr = 'http://localhost:8080/';
 
 export class EmailChannel {
   provider;
@@ -28,13 +31,11 @@ export class EmailChannel {
     );
     let subs = await Promise.all(getSubsPromises);
 
-    // create the email list:
-    // 1. filter the subscriptions that have subscribed for that pallet
-    // 2. map the subs to their registered emails
-    let emails = subs
-      .filter(({ pallets }) => event?.pallet && pallets?.has(event.pallet))
-      .map(({ email }) => email);
-    this.provider.sendNotification(emails, event);
+    // Filter the subscriptions that have subscribed for that pallet
+    subs = subs.filter(
+      (sub) => event?.pallet && sub?.pallets?.has(event.pallet)
+    );
+    //subs.forEach((sub) => this.provider.sendNotification(sub, event));
   }
 }
 
@@ -44,18 +45,30 @@ export class EmailProvider {
     this.apiKey = process.env.EmailApiKey || apiKey;
   }
 
-  getSmtpEmailForEvent(event, recipients) {
+  getSmtpEmailForEvent(event, sub) {
+    let subscribeUrl = new URL(
+      `management/subscribe/${sub?.address}/${sub?.nonce}`,
+      serviceUrlStr
+    ).href?.split('://')?.[1];
+    let unsubscribeUrl = new URL(
+      `management/unsubscribe/${sub?.address}/${sub?.nonce}`,
+      serviceUrlStr
+    ).href?.split('://')?.[1];
+    let recipient = { email: sub?.email };
+
     switch (event?.pallet) {
       case Pallets.BALANCES:
         if (event?.method === 'Transfer') {
           let params = {
+            subscribeUrl,
+            unsubscribeUrl,
             from: event?.params?.[0]?.toHuman(),
             to: event?.params?.[1]?.toHuman(),
             value: event?.params?.[2].toHuman(),
           };
-          let templateId = 2;
+          let templateId = 3;
           return {
-            to: recipients,
+            to: [recipient],
             templateId,
             params,
           };
@@ -65,6 +78,8 @@ export class EmailProvider {
       case Pallets.COUNCIL:
         if (event?.method === 'Proposed') {
           let params = {
+            subscribeUrl,
+            unsubscribeUrl,
             proposedBy: event?.params?.[0]?.toHuman(),
             proposalIndex: event?.params?.[1]?.toHuman(),
             proposalHash: event?.params?.[2]?.toHuman(),
@@ -72,7 +87,7 @@ export class EmailProvider {
           };
           let templateId = 3;
           return {
-            to: recipients,
+            to: [recipient],
             templateId,
             params,
           };
@@ -84,7 +99,7 @@ export class EmailProvider {
     }
   }
 
-  async sendNotification(emails, event) {
+  async sendNotification(sub, event) {
     var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
     // Configure API key authorization: api-key
@@ -98,14 +113,7 @@ export class EmailProvider {
       this.apiKey
     );
 
-    let recipients = emails.map((email) => {
-      return { email };
-    });
-
-    let sendSmtpEmail = this.getSmtpEmailForEvent(
-      event,
-      [{ email: 'hamid.alipour@gmail.com' }] /*recipients*/
-    );
+    let sendSmtpEmail = this.getSmtpEmailForEvent(event, sub);
 
     if (sendSmtpEmail) {
       console.log(
