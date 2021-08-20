@@ -35,7 +35,7 @@ export class EmailChannel {
     subs = subs.filter(
       (sub) => event?.pallet && sub?.pallets?.has(event.pallet)
     );
-    //subs.forEach((sub) => this.provider.sendNotification(sub, event));
+    subs.forEach((sub) => this.provider.sendNotification(sub, event));
   }
 }
 
