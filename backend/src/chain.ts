@@ -5,8 +5,7 @@
 // Import the API
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { u8aToString } from '@polkadot/util';
-
-const chainUrl = 'wss://rpc.polkadot.io';
+import * as config from './config.json';
 
 export enum Pallets {
   COUNCIL = 'council',
@@ -18,7 +17,7 @@ export class Api {
   static api: any;
   static async getApi() {
     if (!this.api) {
-      const wsProvider = new WsProvider(chainUrl);
+      const wsProvider = new WsProvider(config.PROVIDER_SOCKET);
       this.api = await ApiPromise.create({ provider: wsProvider });
     }
     return this.api;
@@ -49,7 +48,7 @@ export class Watcher {
 
     // Subscribe to system events via storage
     return api.query.system.events((events) => {
-      console.log(`\nReceived ${events.length} events:`);
+      console.log(`\nReceived ${events.length} events.`);
       eventHub.send(events);
     });
   }

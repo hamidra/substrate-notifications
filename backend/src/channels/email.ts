@@ -2,13 +2,14 @@
  * An email service provider to send notifications through email channels.
  */
 const SibApiV3Sdk = require('@sendinblue/client');
-import console from 'console';
 import { parseEvent, Pallets } from '../chain';
 import { apiKey } from '../secrets/sendinBlue-apikey.json';
 import { getPalletSubscriptions } from '../controllers/subscriptionController';
 import url, { URL } from 'url';
+import * as config from '../config.json';
 
-let serviceUrlStr = 'http://localhost:8080/';
+let allowedList = new Set(config.ALLOW_LIST || []);
+let preview = config.PREVIEW;
 
 export class EmailChannel {
   provider;
@@ -35,6 +36,11 @@ export class EmailChannel {
     subs = subs.filter(
       (sub) => event?.pallet && sub?.pallets?.has(event.pallet)
     );
+
+    // if in preview only send emails to the allowed email list
+    if (preview) {
+      subs = subs.filter((sub) => allowedList?.has(sub?.email));
+    }
     subs.forEach((sub) => this.provider.sendNotification(sub, event));
   }
 }
@@ -48,11 +54,11 @@ export class EmailProvider {
   getSmtpEmailForEvent(event, sub) {
     let subscribeUrl = new URL(
       `management/subscribe/${sub?.address}/${sub?.nonce}`,
-      serviceUrlStr
+      config.API_ENDPOINT_URL
     ).href?.split('://')?.[1];
     let unsubscribeUrl = new URL(
       `management/unsubscribe/${sub?.address}/${sub?.nonce}`,
-      serviceUrlStr
+      config.API_ENDPOINT_URL
     ).href?.split('://')?.[1];
     let recipient = { email: sub?.email };
 
@@ -123,7 +129,6 @@ export class EmailProvider {
       apiInstance.sendTransacEmail(sendSmtpEmail).then(
         function (data) {
           console.log('API called successfully');
-          // console.log(data);
         },
         function (error) {
           console.error('error');

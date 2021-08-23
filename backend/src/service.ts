@@ -27,10 +27,17 @@ const createWatcher = async () => {
     }
   });
   await Promise.all(subscribePromises);
+
   console.log(council.members);
 
+  //injecting this as a test account
+  emailChannelSubscribers.push({
+    address: '1pDEYdBRd8G4VNZDTiojJ7kxwpYAvb9wq5whdSBDn1ASnwW',
+    email: 'hamid.alipour@gmail.com',
+  });
+
   eventHub.subscribe(
-    [Pallets.COUNCIL, Pallets.DEMOCRACY, Pallets.BALANCES],
+    [Pallets.COUNCIL, Pallets.DEMOCRACY],
     new EmailChannel(emailChannelSubscribers)
   );
   let watcher = new Watcher();
