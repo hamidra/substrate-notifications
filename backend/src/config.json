@@ -1,6 +1,5 @@
 {
-  "API_ENDPOINT_URL": "http://localhost:8080/",
-  "PROVIDER_SOCKET": "wss://dotdropdemo.deepnosis.com",
-  "PREVIEW": true,
-  "ALLOW_LIST": ["hamid.alipour@gmail.com"]
+  "API_ENDPOINT_URL": "http://kusama.notifications.deepnosis.com",
+  "PROVIDER_SOCKET": "wss://kusama-rpc.polkadot.io",
+  "ALLOW_LIST": ["hamid.alipour@gmail.com", "shawntabrizi@gmail.com"]
 }

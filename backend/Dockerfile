@@ -14,10 +14,10 @@ RUN yarn install
 # Bundle app source
 COPY ./ ./
 
-ENV HTTP_PORT="8080"
+ENV HTTP_PORT="80"
 ENV HTTPS_PORT="443"
 
-EXPOSE 8080
+EXPOSE 80
 EXPOSE 443
 
 CMD [ "yarn", "start" ]

