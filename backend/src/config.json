@@ -1,5 +1,5 @@
 {
   "API_ENDPOINT_URL": "http://kusama.notifications.deepnosis.com",
   "PROVIDER_SOCKET": "wss://kusama-rpc.polkadot.io",
-  "ALLOW_LIST": ["hamid.alipour@gmail.com", "shawntabrizi@gmail.com"]
+  "ALLOW_LIST": ["hamid.alipour@gmail.com", "shawntabrizi@gmail.com", "chevdor@gmail.com", "raul@parity.io" ]
 }
