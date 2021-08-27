@@ -5,6 +5,9 @@ import {
   unsubscribe,
   subscribe,
   getPalletSubscriptionsSecure,
+  setAuthenticationToken,
+  getNewAuthNonce,
+  revokeAuthenticationToken,
 } from './controllers/subscriptionController';
 
 const app = express();
@@ -51,6 +54,35 @@ app.get('/management/:address/:nonce', async (req, res) => {
   });
   if (status < 400) {
     res.status(status).json(sub);
+  } else {
+    res.status(status).send();
+  }
+});
+
+// define a route handler for the default home page
+app.get('/login/:address/:token', async (req, res) => {
+  let { status, nonce } = await getNewAuthNonce(req.params.address);
+
+  status = await setAuthenticationToken({
+    address: req.params.address,
+    auth_token: req.params.token,
+    nonce,
+  });
+  if (status < 400) {
+    res.status(status).send(`${req.params.token} token was issued`);
+  } else {
+    res.status(status).send();
+  }
+});
+
+// define a route handler for the default home page
+app.get('/logout/:address/:token', async (req, res) => {
+  let status = await revokeAuthenticationToken({
+    address: req.params.address,
+    auth_token: req.params.token,
+  });
+  if (status < 400) {
+    res.status(status).send(`${req.params.token} token was revoked`);
   } else {
     res.status(status).send();
   }
