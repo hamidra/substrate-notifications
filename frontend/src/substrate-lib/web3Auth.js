@@ -1,5 +1,5 @@
 import { signatureVerify } from '@polkadot/util-crypto';
-import { hexToU8a, stringToHex } from '@polkadot/util';
+import { hexToU8a, stringToHex, stringToU8a } from '@polkadot/util';
 
 const u8aToBase64 = (bytes) => {
   var binary = '';
@@ -32,7 +32,7 @@ const signToken = async (jwt, signingAccount) => {
       ? u8aToBase64(hexToU8a(signature?.signature))
       : '';
   } else {
-    let signature = account.sign(jwt);
+    let signature = account.sign(stringToU8a(jwt));
     signature_base64 = u8aToBase64(signature);
   }
   console.log(base64ToU8(signature_base64));
