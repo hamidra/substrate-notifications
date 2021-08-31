@@ -1,8 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
-import { SubstrateContextProvider } from './substrate-lib';
+import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
 import Login from './pages/login';
-import { useSubstrate } from './substrate-lib';
+import { DeveloperConsole } from './substrate-lib/components';
 
 function Body() {
   const { keyring, ...state } = useSubstrate();
@@ -13,6 +13,7 @@ function App() {
     <div className="App">
       <SubstrateContextProvider>
         <Body />
+        <DeveloperConsole />
       </SubstrateContextProvider>
     </div>
   );

@@ -1,4 +1,5 @@
 import { signatureVerify } from '@polkadot/util-crypto';
+import { hexToU8a, stringToHex } from '@polkadot/util';
 
 const u8aToBase64 = (bytes) => {
   var binary = '';
@@ -13,29 +14,44 @@ const base64ToU8 = (b64string) => {
   }
   return new Uint8Array(arr);
 };
-const signToken = (jwt, signingPair) => {
-  if (!signingPair) {
+const signToken = async (jwt, signingAccount) => {
+  if (!signingAccount || !signingAccount?.account) {
     throw new Error(
-      'no signing pair was provided to sign the authentication token.'
+      'no signing account was provided to sign the authentication token.'
     );
   }
-  let signature = signingPair.sign(jwt);
-  console.log(signature);
-  let signature_base64 = u8aToBase64(signature);
+  let { account, signer } = signingAccount;
+  let signature_base64 = '';
+  if (signer) {
+    let signature = await signer.signRaw({
+      address: account.address,
+      data: stringToHex(jwt),
+      type: 'byte',
+    });
+    signature_base64 = signature?.signature
+      ? u8aToBase64(hexToU8a(signature?.signature))
+      : '';
+  } else {
+    let signature = account.sign(jwt);
+    signature_base64 = u8aToBase64(signature);
+  }
   console.log(base64ToU8(signature_base64));
   return `${jwt}.${signature_base64}`;
 };
 
-export const issue_w3token = ({ nonce, pair }) => {
+export const issue_w3token = async ({ nonce, signingAccount }) => {
   const header = JSON.stringify({
     alg: 'sr25519',
     typ: 'WEB3_JWT',
   });
   const payload = JSON.stringify({
     nonce,
-    address: pair?.address,
+    address: signingAccount?.account?.address,
   });
-  let signedToken = signToken(`${btoa(header)}.${btoa(payload)}`, pair);
+  let signedToken = await signToken(
+    `${btoa(header)}.${btoa(payload)}`,
+    signingAccount
+  );
   return signedToken;
 };
 

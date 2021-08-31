@@ -6,6 +6,7 @@ import AccountSelector from '../components/AccountSelector';
 import CardHeader from '../components/CardHeader';
 import { loadExtension } from '../substrate-lib/extension';
 import { issue_w3token, verify_w3token } from '../substrate-lib/web3Auth';
+import { web3FromSource } from '@polkadot/extension-dapp';
 
 const Connecting = () => {
   return (
@@ -61,12 +62,33 @@ const DownloadExtension = () => {
   );
 };
 
-const SelectAccount = ({ setAccountHandler, setAddressHandler, accounts }) => {
+const LoginWithExtension = ({ loginHandler, accounts }) => {
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const _setAccountHandler = () => {
-    setAccountHandler && setAccountHandler(selectedAccount);
-    setAddressHandler && setAddressHandler(selectedAccount?.address);
+  const [{ signer, canSign }, setSigner] = useState({
+    signer: null,
+    canSign: false,
+  });
+  const _loginHandler = () => {
+    loginHandler && loginHandler({ account: selectedAccount, signer });
   };
+  useEffect(() => {
+    let { source, isInjected, isExternal, isHardware } =
+      selectedAccount?.meta || {};
+    setSigner({
+      signer: null,
+      canSign: !(isInjected || isExternal || isHardware),
+    });
+    if (selectedAccount && source && isInjected) {
+      web3FromSource(source)
+        .then((injected) =>
+          setSigner({
+            canSign: !!injected?.signer?.signRaw,
+            signer: injected?.signer || null,
+          })
+        )
+        .catch((err) => console.error(err));
+    }
+  }, [selectedAccount]);
   return (
     <>
       <CardHeader
@@ -88,8 +110,9 @@ const SelectAccount = ({ setAccountHandler, setAddressHandler, accounts }) => {
         <Col className="pt-4 d-flex justify-content-center">
           <button
             className="btn btn-primary"
-            onClick={() => _setAccountHandler()}>
-            Connect
+            disabled={!canSign}
+            onClick={() => _loginHandler()}>
+            login
           </button>
         </Col>
       </Row>
@@ -107,9 +130,9 @@ export default function Web3Login({ loginHandler }) {
     return '123456';
   };
 
-  const setAccountHandler = (pair) => {
-    let nonce = getNonce(pair?.address);
-    let w3token = issue_w3token({ nonce, pair });
+  const _loginHandler = async (signingAccount) => {
+    let nonce = getNonce(signingAccount?.account?.address);
+    let w3token = await issue_w3token({ nonce, signingAccount });
     let isValid = verify_w3token(w3token);
     console.log(w3token);
     console.log(isValid);
@@ -131,8 +154,8 @@ export default function Web3Login({ loginHandler }) {
                 {extensionState === 'NOT_AVAILABLE' ? (
                   <DownloadExtension />
                 ) : extensionState === 'READY' ? (
-                  <SelectAccount
-                    setAccountHandler={setAccountHandler}
+                  <LoginWithExtension
+                    loginHandler={_loginHandler}
                     accounts={accounts}
                   />
                 ) : (
