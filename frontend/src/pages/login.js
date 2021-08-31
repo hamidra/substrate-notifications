@@ -5,6 +5,7 @@ import { DownloadSimple } from 'phosphor-react';
 import AccountSelector from '../components/AccountSelector';
 import CardHeader from '../components/CardHeader';
 import { loadExtension } from '../substrate-lib/extension';
+import { issue_w3token, verify_w3token } from '../substrate-lib/web3Auth';
 
 const Connecting = () => {
   return (
@@ -96,14 +97,24 @@ const SelectAccount = ({ setAccountHandler, setAddressHandler, accounts }) => {
   );
 };
 
-export default function ExtensionAccount({
-  setAccountHandler,
-  setAddressHandler,
-}) {
+export default function Web3Login({ loginHandler }) {
   const { dispatch, ...state } = useSubstrate();
   const { keyring, extensionState } = state;
 
   const accounts = keyring.getPairs();
+
+  const getNonce = (accountAddr) => {
+    return '123456';
+  };
+
+  const setAccountHandler = (pair) => {
+    let nonce = getNonce(pair?.address);
+    let w3token = issue_w3token({ nonce, pair });
+    let isValid = verify_w3token(w3token);
+    console.log(w3token);
+    console.log(isValid);
+  };
+
   useEffect(() => {
     loadExtension(state, dispatch);
   }, [dispatch, state]);
@@ -122,7 +133,6 @@ export default function ExtensionAccount({
                 ) : extensionState === 'READY' ? (
                   <SelectAccount
                     setAccountHandler={setAccountHandler}
-                    setAddressHandler={setAddressHandler}
                     accounts={accounts}
                   />
                 ) : (
