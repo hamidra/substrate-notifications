@@ -35,6 +35,7 @@
     "@polkadot/api": "^5.5.1",
     "@polkadot/types": "^5.5.1",
     "@sendinblue/client": "^3.0.1",
+    "cors": "^2.8.5",
     "dynamoose": "^2.7.3",
     "express": "^4.17.1",
     "install": "^0.13.0"

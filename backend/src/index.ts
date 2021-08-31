@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import service from './service';
 import { Pallets } from './chain';
 import {
@@ -12,6 +13,9 @@ import {
 
 const app = express();
 const port = process.env.HTTP_PORT || 8080; // default port to listen
+
+// set cors
+app.use(cors());
 
 // define a route handler for the default home page
 app.get('/management/unsubscribe/:address/:nonce', async (req, res) => {
@@ -60,16 +64,10 @@ app.get('/management/:address/:nonce', async (req, res) => {
 });
 
 // define a route handler for the default home page
-app.get('/login/:address/:token', async (req, res) => {
+app.get('/login/:address/nonce', async (req, res) => {
   let { status, nonce } = await getNewAuthNonce(req.params.address);
-
-  status = await setAuthenticationToken({
-    address: req.params.address,
-    auth_token: req.params.token,
-    nonce,
-  });
   if (status < 400) {
-    res.status(status).send(`${req.params.token} token was issued`);
+    res.status(status).json({ nonce });
   } else {
     res.status(status).send();
   }
