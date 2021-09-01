@@ -25,7 +25,7 @@ export const subscribe = async ({ address, email = null, pallets }) => {
     return 200;
   } catch (error) {
     console.error(error);
-    return 505;
+    return 500;
   }
 };
 
@@ -51,7 +51,7 @@ export const unsubscribe = async ({ address, nonce, pallets }) => {
     return 200;
   } catch (error) {
     console.error(error);
-    return 505;
+    return 500;
   }
 };
 
@@ -82,7 +82,7 @@ export const getPalletSubscriptionsSecure = async ({ address, nonce }) => {
     }
   } catch (error) {
     console.error(error);
-    return { status: 505 };
+    return { status: 500 };
   }
 };
 
@@ -97,7 +97,7 @@ export const getSubscriptions = async (address) => {
     return { status: 200, sub };
   } catch (error) {
     console.error(error);
-    return { status: 505 };
+    return { status: 500 };
   }
 };
 
@@ -166,7 +166,7 @@ export const setAuthenticationToken = async ({
     return 200;
   } catch (error) {
     console.error(error);
-    return 505;
+    return 500;
   }
 };
 
@@ -188,6 +188,6 @@ export const revokeAuthenticationToken = async ({ address, auth_token }) => {
     return 200;
   } catch (error) {
     console.error(error);
-    return 505;
+    return 500;
   }
 };
