@@ -8,6 +8,7 @@ import { loadExtension } from '../substrate-lib/extension';
 import { issue_w3token } from '../authentication/web3Auth';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import { api } from '../api';
+import ErrorModal from '../components/Error';
 
 const Connecting = () => {
   return (
@@ -65,12 +66,29 @@ const DownloadExtension = () => {
 
 const LoginWithExtension = ({ loginHandler, accounts }) => {
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [inProgress, setInProgress] = useState(false);
+  const [error, setError] = useState(null);
   const [{ signer, canSign }, setSigner] = useState({
     signer: null,
     canSign: false,
   });
+  const resetPageState = () => {
+    setInProgress(false);
+    setError(null);
+  };
   const _loginHandler = () => {
-    loginHandler && loginHandler({ account: selectedAccount, signer });
+    if (loginHandler) {
+      setInProgress(true);
+      loginHandler({ account: selectedAccount, signer })
+        .then((authResult) => {
+          resetPageState();
+          // go to next page
+        })
+        .catch((error) => {
+          setError(`${error}`);
+          console.log(error);
+        });
+    }
   };
   useEffect(() => {
     let { source, isInjected, isExternal, isHardware } =
@@ -113,10 +131,25 @@ const LoginWithExtension = ({ loginHandler, accounts }) => {
             className="btn btn-primary"
             disabled={!canSign}
             onClick={() => _loginHandler()}>
-            login
+            {inProgress ? (
+              <>
+                <span
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"></span>
+                &nbsp; Logging in ...
+              </>
+            ) : (
+              <>Login</>
+            )}
           </button>
         </Col>
       </Row>
+      <ErrorModal
+        show={!!error}
+        message={error}
+        handleClose={() => resetPageState()}
+      />
     </>
   );
 };

@@ -118,7 +118,7 @@ export const getNewAuthNonce = async (address) => {
     return { status: 200, nonce: auth_nonce };
   } catch (error) {
     console.error(error);
-    return { status: 505 };
+    return { status: 500 };
   }
 };
 

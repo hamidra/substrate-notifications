@@ -3,6 +3,9 @@ import axios from 'axios';
 const apiBaseUrl = 'http://localhost:8080';
 export const api = {
   getNonce: async (address) => {
+    if (!address) {
+      throw new Error(`No address was provided to issue a token.`);
+    }
     let apiUrl = new URL(`authorize/${address}/nonce`, apiBaseUrl);
     let res = await axios.get(apiUrl.toString());
     if (res?.status < 400) {
@@ -14,7 +17,10 @@ export const api = {
   authenticate: async (web3token) => {
     let apiUrl = new URL(`authorize/`, apiBaseUrl);
     let headers = { authorization: `bearer ${web3token}` };
-    let res = await axios.get(apiUrl.toString(), { headers, withCredentials: true });
+    let res = await axios.get(apiUrl.toString(), {
+      headers,
+      withCredentials: true,
+    });
     if (res?.status === 200) {
       return true;
     } else {
