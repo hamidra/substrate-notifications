@@ -1,5 +1,6 @@
 import { signatureVerify } from '@polkadot/util-crypto';
 import { hexToU8a, stringToHex, stringToU8a } from '@polkadot/util';
+import { atob, btoa } from 'js-base64';
 
 const u8aToBase64 = (bytes) => {
   var binary = '';
@@ -56,14 +57,34 @@ export const issue_w3token = async ({ nonce, signingAccount }) => {
 };
 
 export const verify_w3token = (w3token) => {
-  let [b64_header, b64_payload, b64_signature] = w3token.split('.');
-  let payload = JSON.parse(atob(b64_payload));
-  let address = payload?.address;
-  let signature = base64ToU8(b64_signature);
-  let { isValid } = signatureVerify(
-    `${b64_header}.${b64_payload}`,
-    signature,
-    address
-  );
-  return isValid;
+  try {
+    let [b64_header, b64_payload, b64_signature, ...rest] =
+      w3token?.split('.') || [];
+    if (rest.length != 0) {
+      return { error: 'invalid token. malformed' };
+    }
+    if (!b64_header || !b64_payload || !b64_signature) {
+      return {
+        error: 'invalid token. header, payload or signature is missing',
+      };
+    }
+    let header = JSON.parse(atob(b64_header));
+    let payload = JSON.parse(atob(b64_payload));
+    let address = payload?.address;
+    if (!address) {
+      return { error: 'invalid token.  address claim is missing' };
+    }
+    let signature = base64ToU8(b64_signature);
+    let { isValid } = signatureVerify(
+      `${b64_header}.${b64_payload}`,
+      signature,
+      address
+    );
+    if (!isValid) {
+      return { error: 'invalid token. bad signature' };
+    }
+    return { header, payload };
+  } catch (error) {
+    return { error };
+  }
 };

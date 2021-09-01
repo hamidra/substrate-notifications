@@ -5,8 +5,9 @@ import { DownloadSimple } from 'phosphor-react';
 import AccountSelector from '../components/AccountSelector';
 import CardHeader from '../components/CardHeader';
 import { loadExtension } from '../substrate-lib/extension';
-import { issue_w3token, verify_w3token } from '../substrate-lib/web3Auth';
+import { issue_w3token } from '../authentication/web3Auth';
 import { web3FromSource } from '@polkadot/extension-dapp';
+import { api } from '../api';
 
 const Connecting = () => {
   return (
@@ -126,16 +127,14 @@ export default function Web3Login({ loginHandler }) {
 
   const accounts = keyring.getPairs();
 
-  const getNonce = (accountAddr) => {
-    return '123456';
-  };
-
   const _loginHandler = async (signingAccount) => {
-    let nonce = getNonce(signingAccount?.account?.address);
+    let nonce = await api.getNonce(signingAccount?.account?.address);
     let w3token = await issue_w3token({ nonce, signingAccount });
-    let isValid = verify_w3token(w3token);
+    let authResult = await api.authenticate(w3token);
+    console.log(nonce);
     console.log(w3token);
-    console.log(isValid);
+    console.log(`authenticated:${authResult}`);
+    return authResult;
   };
 
   useEffect(() => {
