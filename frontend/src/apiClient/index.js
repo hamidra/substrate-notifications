@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiBaseUrl = 'http://localhost:8080';
-export const api = {
+export const apiClient = {
   getNonce: async (address) => {
     if (!address) {
       throw new Error(`No address was provided to issue a token.`);

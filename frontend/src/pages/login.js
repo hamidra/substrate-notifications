@@ -7,8 +7,9 @@ import CardHeader from '../components/CardHeader';
 import { loadExtension } from '../substrate-lib/extension';
 import { issue_w3token } from '../authentication/web3Auth';
 import { web3FromSource } from '@polkadot/extension-dapp';
-import { api } from '../api';
+import { apiClient } from '../apiClient';
 import ErrorModal from '../components/Error';
+import { useHistory } from 'react-router';
 
 const Connecting = () => {
   return (
@@ -65,6 +66,7 @@ const DownloadExtension = () => {
 };
 
 const LoginWithExtension = ({ loginHandler, accounts }) => {
+  const history = useHistory();
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [inProgress, setInProgress] = useState(false);
   const [error, setError] = useState(null);
@@ -83,6 +85,7 @@ const LoginWithExtension = ({ loginHandler, accounts }) => {
         .then((authResult) => {
           resetPageState();
           // go to next page
+          history.push('/subscriptions');
         })
         .catch((error) => {
           setError(`${error}`);
@@ -134,7 +137,7 @@ const LoginWithExtension = ({ loginHandler, accounts }) => {
             {inProgress ? (
               <>
                 <span
-                  class="spinner-border spinner-border-sm"
+                  className="spinner-border spinner-border-sm"
                   role="status"
                   aria-hidden="true"></span>
                 &nbsp; Logging in ...
@@ -161,9 +164,9 @@ export default function Web3Login({ loginHandler }) {
   const accounts = keyring.getPairs();
 
   const _loginHandler = async (signingAccount) => {
-    let nonce = await api.getNonce(signingAccount?.account?.address);
+    let nonce = await apiClient.getNonce(signingAccount?.account?.address);
     let w3token = await issue_w3token({ nonce, signingAccount });
-    let authResult = await api.authenticate(w3token);
+    let authResult = await apiClient.authenticate(w3token);
     console.log(nonce);
     console.log(w3token);
     console.log(`authenticated:${authResult}`);
