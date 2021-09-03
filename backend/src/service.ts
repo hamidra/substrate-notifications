@@ -1,4 +1,4 @@
-import { Watcher, Council, Pallets } from './chain';
+import { Watcher, FinalizedWatcher, Council, Pallets } from './chain';
 import { EmailChannel } from './channels/email';
 import { EventHub } from './eventHub';
 import { subscribe } from './controllers/subscriptionController';
@@ -40,7 +40,7 @@ const createWatcher = async () => {
     [Pallets.COUNCIL, Pallets.DEMOCRACY],
     new EmailChannel(emailChannelSubscribers)
   );
-  let watcher = new Watcher();
+  let watcher = new FinalizedWatcher();
   return { eventHub, watcher };
 };
 

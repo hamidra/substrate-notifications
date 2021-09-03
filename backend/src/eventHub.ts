@@ -24,8 +24,10 @@ export class EventHub {
       let pallet = event?.section;
 
       if (this.subscribers.has(pallet)) {
+        console.log(
+          `${event.section}:${event.method}:${event.data}:${phase.toString()}`
+        );
         this.subscribers.get(pallet)?.forEach((subscriber) => {
-          console.log(phase.toString(), pallet);
           subscriber.notify(event);
         });
       }

@@ -49,8 +49,69 @@ export class Watcher {
     // Subscribe to system events via storage
     return api.query.system.events((events) => {
       console.log(`\nReceived ${events.length} events.`);
+      // Loop through the Vec<EventRecord>
+      let seenSet = new Set();
+      events.forEach((record) => {
+        // Extract the phase, event and the event types
+        const { event, phase } = record;
+        const types = event.typeDef;
+
+        //check for dublicates
+        if (
+          event.section != 'paraInclusion' &&
+          event.section != 'staking' &&
+          event.section != 'utility'
+        ) {
+          // Show what we are busy with
+          console.log(
+            `${event.section}:${event.method}:${event.data}:${phase.toString()}`
+          );
+          if (
+            seenSet.has(
+              `${event.section}:${event.method}:${
+                event.data
+              }:${phase.toString()}`
+            )
+          ) {
+            console.log(
+              `duplicate event: ${event.section}:${event.method}:${
+                event.data
+              }:${phase.toString()}`
+            );
+            console.log(event.toHuman());
+          } else {
+            seenSet.add(
+              `${event.section}:${event.method}:${
+                event.data
+              }:${phase.toString()}`
+            );
+          }
+        }
+      });
       eventHub.send(events);
     });
+  }
+}
+
+export class FinalizedWatcher {
+  async start(eventHub: any) {
+    const api = await Api.getApi();
+
+    // Subscribe to new finalized blocks
+    const unsubFinalized = await api.rpc.chain.subscribeFinalizedHeads(
+      async (header) => {
+        console.log(`finalized #${header.number}:`, header.toHuman());
+        // get events at the finalized block
+        const events = await api.query.system.events.at(header.hash);
+        console.log(`\nReceived ${events.length} events.`);
+        events.forEach((record) => {
+          // Extract the phase, event and the event types
+          const { event, phase } = record;
+          const types = event.typeDef;
+        });
+        eventHub?.send(events);
+      }
+    );
   }
 }
 
