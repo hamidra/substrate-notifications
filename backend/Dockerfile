@@ -20,4 +20,4 @@ ENV HTTPS_PORT="443"
 EXPOSE 80
 EXPOSE 443
 
-CMD [ "yarn", "start" ]
+CMD yarn start | split -b 100k - log- 

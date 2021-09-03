@@ -10,7 +10,6 @@ import * as config from './config.json';
 export enum Pallets {
   COUNCIL = 'council',
   DEMOCRACY = 'democracy',
-  BALANCES = 'balances',
 }
 
 export class Api {

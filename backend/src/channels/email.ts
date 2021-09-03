@@ -63,24 +63,6 @@ export class EmailProvider {
     let recipient = { email: sub?.email };
 
     switch (event?.pallet) {
-      case Pallets.BALANCES:
-        if (event?.method === 'Transfer') {
-          let params = {
-            subscribeUrl,
-            unsubscribeUrl,
-            from: event?.params?.[0]?.toHuman(),
-            to: event?.params?.[1]?.toHuman(),
-            value: event?.params?.[2].toHuman(),
-          };
-          let templateId = 3;
-          return {
-            to: [recipient],
-            templateId,
-            params,
-          };
-        }
-        return null;
-        break;
       case Pallets.COUNCIL:
         if (event?.method === 'Proposed') {
           let params = {
