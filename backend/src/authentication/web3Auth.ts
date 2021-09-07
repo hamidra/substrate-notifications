@@ -9,7 +9,7 @@ const u8aToBase64 = (bytes) => {
 };
 const base64ToU8 = (b64string) => {
   var data = atob(b64string);
-  var arr = [];
+  var arr: any[] = [];
   for (let i = 0; i < data.length; i++) {
     arr.push(data.charCodeAt(i));
   }
