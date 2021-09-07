@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import { getNewAuthNonce } from '../controllers/subscriptionController';
-//import { authenticate } from '../authentication';
+import { authenticate } from '../authentication';
 
 // define a route handler for the default home page
 router.get('/:address/nonce', async (req, res) => {

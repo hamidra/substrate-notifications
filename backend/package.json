@@ -4,7 +4,7 @@
   "description": "A notification system for substrate networks",
   "main": "./src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "npm run build && node build/index.js",
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc"
@@ -24,7 +24,13 @@
   },
   "homepage": "https://github.com/hamidra/substrate-notifications#readme",
   "devDependencies": {
+    "@babel/core": "^7.15.5",
+    "@babel/preset-env": "^7.15.4",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.1",
     "@types/node": "^16.0.0",
+    "babel-jest": "^27.1.0",
+    "jest": "^27.1.0",
     "nodemon": "^2.0.9",
     "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
