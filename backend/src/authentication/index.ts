@@ -12,5 +12,7 @@ export const authenticate = (req) => {
     console.log(error);
     return { status: 401 };
   }
-  return { status: 200, w3token, claimes: payload };
+  return { status: 200, w3token, claims: payload };
 };
+
+export * from './web3Auth';
