@@ -1,20 +1,22 @@
 import express from 'express';
 import { Pallets } from '../chain';
 import {
-  unsubscribe,
-  subscribe,
-  getPalletSubscriptionsSecure,
+  updatePalletSubscriptions,
+  getSubscriptionsSecure,
 } from '../controllers/subscriptionController';
+import pallet from '../models/pallet';
 
 const router = express.Router();
 
 // define a route handler for the default home page
 router.get('/unsubscribe/:address/:nonce', async (req, res) => {
   try {
-    let status = await unsubscribe({
+    // currently will unsubscribe from council events:
+    let unsubscribedPallets = [new pallet({ name: Pallets.COUNCIL })];
+    let status = await updatePalletSubscriptions({
       address: req.params.address,
       nonce: req.params.nonce,
-      pallets: [Pallets.COUNCIL],
+      pallets: unsubscribedPallets,
     });
     if (status < 400) {
       res
@@ -34,9 +36,16 @@ router.get('/unsubscribe/:address/:nonce', async (req, res) => {
 // define a route handler for the default home page
 router.get('/subscribe/:address/:nonce', async (req, res) => {
   try {
-    let status = await subscribe({
+    let subscribedPallets = [
+      new pallet({
+        name: Pallets.COUNCIL,
+        events: new Set(['proposed']),
+      }),
+    ];
+    let status = await updatePalletSubscriptions({
       address: req.params.address,
-      pallets: [Pallets.COUNCIL],
+      nonce: req.params.nonce,
+      pallets: subscribedPallets,
     });
     if (status < 400) {
       res
@@ -56,7 +65,7 @@ router.get('/subscribe/:address/:nonce', async (req, res) => {
 // define a route handler for the default home page
 router.get('/:address/:nonce', async (req, res) => {
   try {
-    let { status, sub } = await getPalletSubscriptionsSecure({
+    let { status, sub } = await getSubscriptionsSecure({
       address: req.params.address,
       nonce: req.params.nonce,
     });

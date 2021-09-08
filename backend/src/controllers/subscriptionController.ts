@@ -27,7 +27,11 @@ export const subscribe = async ({ address, email = null, pallets }) => {
   }
 };
 
-export const unsubscribe = async ({ address, nonce, pallets }) => {
+export const updatePalletSubscriptions = async ({
+  address,
+  nonce,
+  pallets,
+}) => {
   try {
     if (!address) {
       console.log(`No address was provided for subscription.`);
@@ -38,49 +42,18 @@ export const unsubscribe = async ({ address, nonce, pallets }) => {
     if (sub?.nonce != nonce) {
       return 403;
     }
-    if (sub && pallets?.length) {
-      pallets?.forEach((pallet) => sub.pallets?.delete(pallet));
-      if (!sub.pallets?.size) {
-        // dynamoose won't let the string sets to be empty, hence we need to drop pallets if the field is empty
-        delete sub.pallets;
-      }
+    if (sub) {
+      pallets?.forEach((pallet) => {
+        if (pallet?.name) {
+          sub[pallet?.name] = pallet;
+        }
+      });
       await sub.save();
     }
     return 200;
   } catch (error) {
     console.error(error);
     return 500;
-  }
-};
-
-export const getPalletSubscriptions = async (address) => {
-  try {
-    let sub = await subscriptionModel.get(address);
-    return sub || [];
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-export const getPalletSubscriptionsSecure = async ({ address, nonce }) => {
-  try {
-    if (!address) {
-      console.log(`No address was provided for subscription.`);
-      return { status: 400 };
-    }
-    let sub = await subscriptionModel.get(address);
-    sub.pallets = [...(sub?.pallets || [])];
-    if (sub?.nonce != nonce) {
-      return { status: 403 };
-    }
-    if (sub) {
-      return { status: 200, sub };
-    } else {
-      return { status: 404 };
-    }
-  } catch (error) {
-    console.error(error);
-    return { status: 500 };
   }
 };
 
@@ -93,6 +66,27 @@ export const getSubscriptions = async (address) => {
 
     let sub = await subscriptionModel.get(address);
     return { status: 200, sub };
+  } catch (error) {
+    console.error(error);
+    return { status: 500 };
+  }
+};
+
+export const getSubscriptionsSecure = async ({ address, nonce }) => {
+  try {
+    if (!address) {
+      console.log(`No address was provided for subscription.`);
+      return { status: 400 };
+    }
+    let sub = await subscriptionModel.get(address);
+    if (sub?.nonce != nonce) {
+      return { status: 403 };
+    }
+    if (sub) {
+      return { status: 200, sub };
+    } else {
+      return { status: 404 };
+    }
   } catch (error) {
     console.error(error);
     return { status: 500 };

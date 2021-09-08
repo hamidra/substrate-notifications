@@ -15,7 +15,7 @@ const createWatcher = async () => {
   let subscribePromises: any[] = [];
   await council.loadMembers();
   let councilPallet = new pallet({
-    name: 'council',
+    name: Pallets.COUNCIL,
     events: new Set(['proposed']),
   });
   council.members.forEach((member, address) => {

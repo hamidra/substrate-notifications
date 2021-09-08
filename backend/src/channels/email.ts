@@ -4,7 +4,7 @@
 const SibApiV3Sdk = require('@sendinblue/client');
 import { parseEvent, Pallets } from '../chain';
 import { apiKey } from '../secrets/sendinBlue-apikey.json';
-import { getPalletSubscriptions } from '../controllers/subscriptionController';
+import { getSubscriptions } from '../controllers/subscriptionController';
 import url, { URL } from 'url';
 import * as config from '../config.json';
 
@@ -28,7 +28,7 @@ export class EmailChannel {
 
     let getSubsPromises: any[] = [];
     this.subscribers.forEach(({ address }) =>
-      getSubsPromises.push(getPalletSubscriptions(address))
+      getSubsPromises.push(getSubscriptions(address))
     );
     let subs = await Promise.all(getSubsPromises);
 
