@@ -14,3 +14,7 @@ export const authenticate = (req) => {
   }
   return { status: 200, w3token, claims: payload };
 };
+
+export const add = (a, b) => {
+  return a + b;
+};
