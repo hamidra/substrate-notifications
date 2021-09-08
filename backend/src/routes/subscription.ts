@@ -3,8 +3,10 @@ import { Pallets } from '../chain';
 import {
   updatePalletSubscriptions,
   getSubscriptionsSecure,
+  getSubscriptions,
 } from '../controllers/subscriptionController';
 import pallet from '../models/pallet';
+import auth from '../middlewares/auth';
 
 const router = express.Router();
 
@@ -80,4 +82,19 @@ router.get('/:address/:nonce', async (req, res) => {
   }
 });
 
+router.get('/:address', auth, async (req, res) => {
+  try {
+    let { status, sub } = await getSubscriptions({
+      address: req.params.address,
+    });
+    if (status < 400) {
+      res.status(status).json(sub);
+    } else {
+      res.status(status).send();
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send();
+  }
+});
 export default router;
