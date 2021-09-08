@@ -12,10 +12,8 @@ export const subscribe = async ({ address, email = null, pallets }) => {
       new subscriptionModel({ address, nonce: randomAsNumber().toString() });
 
     pallets?.forEach((pallet) => {
-      if (!sub.pallets) {
-        sub.pallets = new Set([pallet]);
-      } else {
-        sub.pallets.add(pallet);
+      if (pallet?.name) {
+        sub[`${pallet?.name}`] = pallet;
       }
     });
     if (email) {

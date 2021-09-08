@@ -34,7 +34,11 @@ export class EmailChannel {
 
     // Filter the subscriptions that have subscribed for that pallet
     subs = subs.filter(
-      (sub) => event?.pallet && sub?.pallets?.has(event.pallet)
+      (sub) =>
+        event?.pallet &&
+        event?.method &&
+        event.pallet in sub &&
+        sub[event.pallet].events.has(event.method)
     );
 
     // if in preview only send emails to the allowed email list
