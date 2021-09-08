@@ -1,4 +1,4 @@
-/*import { authenticate } from '.';
+import { add, authenticate } from '.';
 
 test('verify a valid w3token can authenticate', () => {
   let test_nonce = '7581417912600841';
@@ -8,9 +8,8 @@ test('verify a valid w3token can authenticate', () => {
   expect(status).toBe('200');
   expect(w3token).toBe(w3token_valid);
   expect(claims?.nonce).toBe(test_nonce);
-});*/
+});
 
-import { add } from './';
 test('testing add', () => {
   expect(add(2, 3)).toBe(5);
 });
