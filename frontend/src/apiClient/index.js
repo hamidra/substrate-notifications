@@ -14,8 +14,8 @@ export const apiClient = {
       throw new Error(`failed to get nonce from server. status:${res?.status}`);
     }
   },
-  authenticate: async (web3token) => {
-    let apiUrl = new URL(`authorize/`, apiBaseUrl);
+  authenticate: async (web3token, address) => {
+    let apiUrl = new URL(`authorize/${address}`, apiBaseUrl);
     let headers = { authorization: `bearer ${web3token}` };
     let res = await axios.get(apiUrl.toString(), {
       headers,

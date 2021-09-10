@@ -26,7 +26,7 @@ const w3tokenCookie = (address) => {
     ?.split('; ')
     ?.find((row) => row.startsWith(`w3token_${address}=`))
     ?.split('=')[1];
-  return w3token;
+  return decodeURIComponent(w3token);
 };
 
 const deleteW3tokenCookie = (address) => {
@@ -67,16 +67,9 @@ const AuthContextProvider = (props) => {
     dispatch({ type: 'SET_ADDRESS', payload: address });
   };
 
-  const setAuthStatus = (isAuthenticated) => {
-    dispatch({ type: 'SET_AUTHENTICATED', payload: isAuthenticated });
-  };
-
   // the context provider will refresh everytime a new object is assigned to it's value,
   // hence we useMemo to only create a new Object when state changes
-  const contextValue = useMemo(
-    () => ({ ...state, setAddress, setAuthStatus }),
-    [state]
-  );
+  const contextValue = useMemo(() => ({ ...state, setAddress }), [state]);
 
   return (
     <AuthContext.Provider value={contextValue}>

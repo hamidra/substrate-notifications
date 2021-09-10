@@ -1,14 +1,39 @@
 import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
 import Login from './pages/login';
 import { DeveloperConsole } from './substrate-lib/components';
-import { AuthContextProvider } from './authentication/authContext';
+import {
+  AuthContextProvider,
+  useAuthentication,
+} from './authentication/authContext';
 import {
   Switch,
   Route,
   HashRouter as Router,
   Redirect,
+  useLocation,
 } from 'react-router-dom';
 import Subscriptions from './pages/subscriptions';
+
+function SecureRoute({ children, ...props }) {
+  let { isAuthenticated } = useAuthentication();
+  let location = useLocation();
+  console.log(isAuthenticated);
+  console.log(location);
+  return (
+    <Route {...props}>
+      {isAuthenticated ? (
+        children
+      ) : (
+        <Redirect
+          to={{
+            pathname: '/login',
+            state: { from: location },
+          }}
+        />
+      )}
+    </Route>
+  );
+}
 
 function Body() {
   const { keyring } = useSubstrate();
@@ -16,14 +41,12 @@ function Body() {
     <>
       <Switch>
         <Route path="/login">{keyring && <Login />}</Route>
-        <AuthContextProvider>
-          <Route path="/manage">
-            <Subscriptions />
-          </Route>
-          <Route path="/">
-            <Redirect to={'/manage'} />
-          </Route>
-        </AuthContextProvider>
+        <SecureRoute path="/manage">
+          <Subscriptions />
+        </SecureRoute>
+        <SecureRoute path="/">
+          <Redirect to={'/manage'} />
+        </SecureRoute>
       </Switch>
     </>
   );
@@ -32,10 +55,12 @@ function App() {
   return (
     <div className="App">
       <SubstrateContextProvider>
-        <Router>
-          <Body />
-        </Router>
-        <DeveloperConsole />
+        <AuthContextProvider>
+          <Router>
+            <Body />
+          </Router>
+          <DeveloperConsole />
+        </AuthContextProvider>
       </SubstrateContextProvider>
     </div>
   );
