@@ -117,8 +117,8 @@ export class FinalizedWatcher {
 export const parseEvent = (event) => {
   try {
     let parsed = {
-      pallet: event?.section,
-      method: event?.method,
+      pallet: event?.section?.toLowerCase(),
+      method: event?.method?.toLowerCase(),
       params: event?.data,
     };
     return { parsed };
