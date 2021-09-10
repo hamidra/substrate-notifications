@@ -60,7 +60,7 @@ export const verify_w3token = (w3token) => {
   try {
     let [b64_header, b64_payload, b64_signature, ...rest] =
       w3token?.split('.') || [];
-    if (rest.length != 0) {
+    if (rest.length !== 0) {
       return { error: 'invalid token. malformed' };
     }
     if (!b64_header || !b64_payload || !b64_signature) {

@@ -1,6 +1,7 @@
 import { SubstrateContextProvider, useSubstrate } from './substrate-lib';
 import Login from './pages/login';
 import { DeveloperConsole } from './substrate-lib/components';
+import { AuthContextProvider } from './authentication/authContext';
 import {
   Switch,
   Route,
@@ -8,18 +9,21 @@ import {
   Redirect,
 } from 'react-router-dom';
 import Subscriptions from './pages/subscriptions';
+
 function Body() {
   const { keyring } = useSubstrate();
   return (
     <>
       <Switch>
         <Route path="/login">{keyring && <Login />}</Route>
-        <Route path="/subscriptions">
-          <Subscriptions />
-        </Route>
-        <Route path="/">
-          <Redirect to={'/login'} />
-        </Route>
+        <AuthContextProvider>
+          <Route path="/manage">
+            <Subscriptions />
+          </Route>
+          <Route path="/">
+            <Redirect to={'/manage'} />
+          </Route>
+        </AuthContextProvider>
       </Switch>
     </>
   );
