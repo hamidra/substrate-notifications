@@ -75,12 +75,13 @@ export const verify_w3token = (w3token) => {
       return { error: 'invalid token.  address claim is missing' };
     }
     let signature = base64ToU8(b64_signature);
-    let { isValid } = signatureVerify(
+    let verifyResult = signatureVerify(
       `${b64_header}.${b64_payload}`,
       signature,
       address
     );
-    if (!isValid) {
+    console.log(verifyResult);
+    if (!verifyResult.isValid) {
       return { error: 'invalid token. bad signature' };
     }
     return { header, payload };

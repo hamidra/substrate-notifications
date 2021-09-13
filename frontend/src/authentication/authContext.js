@@ -11,8 +11,8 @@ const INIT_STATE = {
 const reducer = (state, action) => {
   switch (action.type) {
     case 'SET_ADDRESS':
-      let address = action.payload;
-      let isAuthenticated = isAddressAuthenticated(address);
+      let address = action.payload || '';
+      let isAuthenticated = address ? isAddressAuthenticated(address) : false;
       return { ...state, address, isAuthenticated };
     case 'SET_AUTHENTICATED':
       return { ...state, isAuthenticated: action.payload };
@@ -21,7 +21,7 @@ const reducer = (state, action) => {
   }
 };
 
-const w3tokenCookie = (address) => {
+const getW3tokenCookie = (address) => {
   let w3token = document.cookie
     ?.split('; ')
     ?.find((row) => row.startsWith(`w3token_${address}=`))
@@ -36,7 +36,7 @@ const deleteW3tokenCookie = (address) => {
 };
 
 const isAddressAuthenticated = (address) => {
-  let w3token = w3tokenCookie(address);
+  let w3token = getW3tokenCookie(address);
   if (w3token) {
     let { error, payload } = verify_w3token(w3token);
     if (error) {
@@ -61,9 +61,16 @@ const isAddressAuthenticated = (address) => {
 
 const AuthContextProvider = (props) => {
   // filtering props and merge with default param value
-  const [state, dispatch] = useReducer(reducer, INIT_STATE);
+  let address = localStorage.getItem('loginAddress');
+  let isAuthenticated = address ? isAddressAuthenticated(address) : false;
+  const [state, dispatch] = useReducer(reducer, {
+    ...INIT_STATE,
+    address,
+    isAuthenticated,
+  });
 
   const setAddress = (address) => {
+    localStorage.setItem('loginAddress', address);
     dispatch({ type: 'SET_ADDRESS', payload: address });
   };
 
