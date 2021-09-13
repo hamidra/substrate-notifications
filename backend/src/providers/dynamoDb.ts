@@ -1,5 +1,5 @@
 import * as dynamooseClient from 'dynamoose';
-import * as dynamoDB_creds from '../secrets/dynamoDb-creds.json';
+import * as dynamoDB_creds from '../secrets/dynamoDb-creds-dev.json';
 
 dynamooseClient.aws.sdk.config.update({
   accessKeyId: dynamoDB_creds.accessKeyId,
