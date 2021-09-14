@@ -38,12 +38,12 @@ const apiClient = {
     // axios request
     try {
       let apiUrl = new URL(`management/${address}`, apiBaseUrl);
-      let res = await axios.get(apiUrl.toString(), {
+      let response = await axios.get(apiUrl.toString(), {
         withCredentials: true,
       });
-      return { status: res?.status, data: res?.data };
-    } catch (res) {
-      return { status: res?.status };
+      return { status: response?.status, data: response?.data };
+    } catch ({ response }) {
+      return { status: response?.status };
     }
   },
 };

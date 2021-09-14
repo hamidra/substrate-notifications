@@ -1,11 +1,11 @@
 import { verify_w3token } from './web3Auth';
-export const authenticate = (req, address) => {
+export const authenticate = async (req, address) => {
   let authorization = req.headers['authorization'];
   let [authType, w3token, ...rest] = authorization?.split(' ') || [];
   if (rest.length != 0 || authType.toLowerCase() != 'bearer' || !w3token) {
     return { status: 401 };
   }
-  let { error, header, payload } = verify_w3token(w3token) || {
+  let { error, header, payload } = (await verify_w3token(w3token)) || {
     error: 'was not able to verify the token',
   };
   if (error) {

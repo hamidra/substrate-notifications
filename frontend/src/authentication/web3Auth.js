@@ -1,4 +1,4 @@
-import { signatureVerify } from '@polkadot/util-crypto';
+import { signatureVerify, cryptoWaitReady } from '@polkadot/util-crypto';
 import { hexToU8a, stringToHex, stringToU8a } from '@polkadot/util';
 import { atob, btoa } from 'js-base64';
 
@@ -56,7 +56,7 @@ export const issue_w3token = async ({ nonce, signingAccount }) => {
   return signedToken;
 };
 
-export const verify_w3token = (w3token) => {
+export const verify_w3token = async (w3token) => {
   try {
     let [b64_header, b64_payload, b64_signature, ...rest] =
       w3token?.split('.') || [];
@@ -75,13 +75,13 @@ export const verify_w3token = (w3token) => {
       return { error: 'invalid token.  address claim is missing' };
     }
     let signature = base64ToU8(b64_signature);
-    let verifyResult = signatureVerify(
+    await cryptoWaitReady();
+    let { isValid } = signatureVerify(
       `${b64_header}.${b64_payload}`,
       signature,
       address
     );
-    console.log(verifyResult);
-    if (!verifyResult.isValid) {
+    if (!isValid) {
       return { error: 'invalid token. bad signature' };
     }
     return { header, payload };

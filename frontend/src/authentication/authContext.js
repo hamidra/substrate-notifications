@@ -14,8 +14,6 @@ const reducer = (state, action) => {
       let address = action.payload || '';
       let isAuthenticated = address ? isAddressAuthenticated(address) : false;
       return { ...state, address, isAuthenticated };
-    case 'SET_AUTHENTICATED':
-      return { ...state, isAuthenticated: action.payload };
     default:
       throw new Error(`Unknown type: ${action.type}`);
   }
@@ -26,7 +24,8 @@ const getW3tokenCookie = (address) => {
     ?.split('; ')
     ?.find((row) => row.startsWith(`w3token_${address}=`))
     ?.split('=')[1];
-  return decodeURIComponent(w3token);
+
+  return w3token ? decodeURIComponent(w3token) : null;
 };
 
 const deleteW3tokenCookie = (address) => {
@@ -38,20 +37,7 @@ const deleteW3tokenCookie = (address) => {
 const isAddressAuthenticated = (address) => {
   let w3token = getW3tokenCookie(address);
   if (w3token) {
-    let { error, payload } = verify_w3token(w3token);
-    if (error) {
-      // w3token is not valid. delete it from cookies
-      console.log(`w3token is not valid. error: ${error}`);
-      deleteW3tokenCookie(address);
-      return false;
-    }
-    if (payload?.address === address) {
-      return true;
-    } else {
-      // w3token is not valid. delete it from cookies
-      console.log(`w3token is not authorized.`);
-      return false;
-    }
+    return true;
   } else {
     // no w3token found in cookies
     console.log(`no w3token was found for the address.`);

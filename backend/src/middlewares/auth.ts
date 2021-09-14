@@ -1,8 +1,8 @@
 import { verify_w3token } from '../authentication';
-export default (req, res, next) => {
+export default async (req, res, next) => {
   let w3tokenName = `w3token_${req?.params?.address || ''}`;
   let w3token = req.cookies[w3tokenName];
-  let { error, header, payload } = verify_w3token(w3token) || {
+  let { error, header, payload } = (await verify_w3token(w3token)) || {
     error: 'was not able to verify the token',
   };
   if (error) {

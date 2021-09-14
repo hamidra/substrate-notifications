@@ -22,7 +22,7 @@ router.get('/:address/nonce', async (req, res) => {
 router.get('/:address', async (req, res) => {
   try {
     let { status, w3token, claims } =
-      authenticate(req, req.params.address) || {};
+      (await authenticate(req, req.params.address)) || {};
     if (!status) {
       console.log('something went wrong. not able to authenticate the request');
       res.status(500).send();

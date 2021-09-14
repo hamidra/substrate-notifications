@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import apiClient from '../apiClient';
 import { useHistory } from 'react-router';
 
+const authzErrors = [401, 403];
 export default function Subscriptions() {
   let { isAuthenticated, address } = useAuthentication();
   let [{ council }, setPallets] = useState({ council: null });
@@ -15,7 +16,7 @@ export default function Subscriptions() {
       .then(({ status, data }) => {
         if (status === 200) {
           setPallets({ council: data?.council });
-        } else if (status in [401, 403]) {
+        } else if (authzErrors.includes(status)) {
           // the was an issue with user authnetication
           history.push('login');
         }
