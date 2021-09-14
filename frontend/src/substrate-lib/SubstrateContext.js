@@ -74,6 +74,9 @@ const SubstrateContextProvider = (props) => {
   // load keyring
   loadKeyring(state, dispatch);
   console.log(state);
+
+  // the context provider will refresh everytime a new object is assigned to it's value,
+  // hence we useMemo to only create a new Object when state changes
   const contextValue = useMemo(
     () => ({ ...state, dispatch }),
     [state, dispatch]

@@ -87,7 +87,7 @@ router.get('/:address', auth, async (req, res) => {
     let { status, sub } = await getSubscriptions({
       address: req.params.address,
     });
-    if (status < 400) {
+    if (status < 300) {
       res.status(status).json(sub);
     } else {
       res.status(status).send();

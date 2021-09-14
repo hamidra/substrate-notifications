@@ -7,9 +7,10 @@ import CardHeader from '../components/CardHeader';
 import { loadExtension } from '../substrate-lib/extension';
 import { issue_w3token } from '../authentication/web3Auth';
 import { web3FromSource } from '@polkadot/extension-dapp';
-import { apiClient } from '../apiClient';
+import apiClient from '../apiClient';
 import ErrorModal from '../components/Error';
 import { useHistory } from 'react-router';
+import { useAuthentication } from '../authentication/authContext';
 
 const Connecting = () => {
   return (
@@ -74,6 +75,7 @@ const LoginWithExtension = ({ loginHandler, accounts }) => {
     signer: null,
     canSign: false,
   });
+  const { setAddress } = useAuthentication();
   const resetPageState = () => {
     setInProgress(false);
     setError(null);
@@ -81,11 +83,16 @@ const LoginWithExtension = ({ loginHandler, accounts }) => {
   const _loginHandler = () => {
     if (loginHandler) {
       setInProgress(true);
-      loginHandler({ account: selectedAccount, signer })
+      let account = selectedAccount;
+      loginHandler({ account, signer })
         .then((authResult) => {
           resetPageState();
-          // go to next page
-          history.push('/subscriptions');
+          if (authResult) {
+            // set address
+            setAddress(account?.address);
+            // go to next page
+            history.push('/subscriptions');
+          }
         })
         .catch((error) => {
           setError(`${error}`);
@@ -164,13 +171,27 @@ export default function Web3Login({ loginHandler }) {
   const accounts = keyring.getPairs();
 
   const _loginHandler = async (signingAccount) => {
-    let nonce = await apiClient.getNonce(signingAccount?.account?.address);
-    let w3token = await issue_w3token({ nonce, signingAccount });
-    let authResult = await apiClient.authenticate(w3token);
-    console.log(nonce);
-    console.log(w3token);
-    console.log(`authenticated:${authResult}`);
-    return authResult;
+    let { status, nonce } = await apiClient.getNonce(
+      signingAccount?.account?.address
+    );
+    if (nonce) {
+      let w3token = await issue_w3token({ nonce, signingAccount });
+      let authResult = await apiClient.authenticate(
+        w3token,
+        signingAccount?.account?.address
+      );
+      console.log(nonce);
+      console.log(w3token);
+      console.log(`authenticated:${authResult}`);
+      return authResult;
+    } else {
+      console.log(
+        `was not able to get a nonce from server. status code ${status}`
+      );
+      throw new Error(
+        `Not able to authenticate with server. server status: ${status}`
+      );
+    }
   };
 
   useEffect(() => {

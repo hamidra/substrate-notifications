@@ -11,12 +11,12 @@ import { verify_w3token, issue_w3token } from './web3Auth';
   expect(claims?.nonce).toBe(test_nonce);
 });*/
 
-test('verify valid token', () => {
+test('verify valid token', async () => {
   let validToken =
     'eyJhbGciOiJzcjI1NTE5IiwidHlwIjoiV0VCM19KV1QifQ==.eyJub25jZSI6Ijc1ODE0MTc5MTI2MDA4NDEiLCJhZGRyZXNzIjoiNUdyd3ZhRUY1elhiMjZGejlyY1FwRFdTNTdDdEVSSHBOZWhYQ1BjTm9IR0t1dFFZIn0=.9GJf7NEH46baH+nXziXwaOsviZl/WUrGBMkDFUAheEvx3Qt1rZKgswzdAku++S6MQ4LurZFFz3uFmBB9Bi5JhQ==';
   let validToken2 =
     'eyJhbGciOiJzcjI1NTE5IiwidHlwIjoiV0VCM19KV1QifQ==.eyJub25jZSI6IjgzMjM3NTY2MzE4NTAxNTQiLCJhZGRyZXNzIjoiNUdyd3ZhRUY1elhiMjZGejlyY1FwRFdTNTdDdEVSSHBOZWhYQ1BjTm9IR0t1dFFZIn0=.Xl/VBwzMwo8UGXdZisHzL2/BxAkDYPemEiN+vsuZg0LhVx7+2NPkVo0HrDGe+yNJMhjn/cGsxt2jy5uRQqkUig==';
 
-  let { header, payload, error } = verify_w3token(validToken2);
-  expect(error).toBe('');
+  let { header, payload, error } = await verify_w3token(validToken2);
+  expect(error).toBeFalsy();
 });

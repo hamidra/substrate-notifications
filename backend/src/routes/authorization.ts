@@ -19,15 +19,16 @@ router.get('/:address/nonce', async (req, res) => {
 });
 
 // define a route handler for the default home page
-router.get('/', async (req, res) => {
+router.get('/:address', async (req, res) => {
   try {
-    let { status, w3token, claims } = authenticate(req) || {};
+    let { status, w3token, claims } =
+      (await authenticate(req, req.params.address)) || {};
     if (!status) {
       console.log('something went wrong. not able to authenticate the request');
       res.status(500).send();
     }
     if (status === 200) {
-      res.cookie('w3token', w3token, { httponly: true });
+      res.cookie(`w3token_${req.params.address}`, w3token, { httponly: true });
       res.status(status).send();
     } else {
       res.status(status).send();

@@ -1,5 +1,35 @@
 import { Container, Row, Form, Col } from 'react-bootstrap';
+import { useAuthentication } from '../authentication/authContext';
+import { useEffect, useState } from 'react';
+import apiClient from '../apiClient';
+import { useHistory } from 'react-router';
+
+const authzErrors = [401, 403];
 export default function Subscriptions() {
+  let { isAuthenticated, address } = useAuthentication();
+  let [{ council }, setPallets] = useState({ council: null });
+  let history = useHistory();
+
+  useEffect(() => {
+    apiClient
+      .getSubscription(address)
+      .then(({ status, data }) => {
+        if (status === 200) {
+          setPallets({ council: data?.council });
+        } else if (authzErrors.includes(status)) {
+          // the was an issue with user authnetication
+          history.push('login');
+        }
+      })
+      .catch((error) => {
+        console.log(`there was an issue fetching user data: ${error}`);
+      });
+
+    return () => {
+      // add cleanup to cancel pending requests
+    };
+  }, [isAuthenticated, address, history]);
+  console.log(council);
   return (
     <>
       <Container
