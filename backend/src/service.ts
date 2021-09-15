@@ -1,8 +1,7 @@
 import { Watcher, FinalizedWatcher, Council, Pallets } from './chain';
 import { EmailChannel } from './channels/email';
 import { EventHub } from './eventHub';
-import { subscribe } from './controllers/subscriptionController';
-import pallet from './models/pallet';
+import { createSubscription } from './controllers/subscriptionController';
 
 const createWatcher = async () => {
   let eventHub = new EventHub();
@@ -14,19 +13,20 @@ const createWatcher = async () => {
 
   let subscribePromises: any[] = [];
   await council.loadMembers();
-  let councilPallet = new pallet({
+  let councilPallet = {
     name: Pallets.COUNCIL,
-    events: new Set(['proposed']),
-  });
+    events: ['proposed'],
+  };
   council.members.forEach((member, address) => {
     if (member?.email) {
       emailChannelSubscribers.push({ address, email: member?.email });
-      subscribe({
-        address,
-        email: member.email,
-        pallets: [councilPallet],
-      });
-      subscribePromises.push();
+      subscribePromises.push(
+        createSubscription({
+          address,
+          email: member.email,
+          pallets: [councilPallet],
+        })
+      );
     }
   });
   await Promise.all(subscribePromises);

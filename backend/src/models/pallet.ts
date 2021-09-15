@@ -1,8 +1,8 @@
 import { dynamooseClient } from '../providers/dynamoDb';
 
-const palletSchema = new dynamooseClient.Schema({
+const PalletSchema = new dynamooseClient.Schema({
   name: String,
-  events: { type: Set, schema: [String] },
+  events: { type: Array, schema: [String] },
 });
 
-export default dynamooseClient.model('Subscription', palletSchema);
+export { PalletSchema };

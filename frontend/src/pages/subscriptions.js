@@ -7,7 +7,7 @@ import { useHistory } from 'react-router';
 const authzErrors = [401, 403];
 export default function Subscriptions() {
   let { isAuthenticated, address } = useAuthentication();
-  let [{ council }, setPallets] = useState({ council: null });
+  let [pallets, setPallets] = useState(null);
   let history = useHistory();
 
   useEffect(() => {
@@ -15,7 +15,8 @@ export default function Subscriptions() {
       .getSubscription(address)
       .then(({ status, data }) => {
         if (status === 200) {
-          setPallets({ council: data?.council });
+          console.log(data);
+          setPallets(data?.pallets);
         } else if (authzErrors.includes(status)) {
           // the was an issue with user authnetication
           history.push('login');
@@ -29,7 +30,8 @@ export default function Subscriptions() {
       // add cleanup to cancel pending requests
     };
   }, [isAuthenticated, address, history]);
-  console.log(council);
+
+  console.log(pallets);
   return (
     <>
       <Container

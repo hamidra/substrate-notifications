@@ -1,26 +1,37 @@
-import subscriptionModel from '../models/subscription';
+import { SubscriptionModel } from '../models/subscription';
 import { randomAsNumber } from '@polkadot/util-crypto';
 
-export const subscribe = async ({ address, email = null, pallets }) => {
+export const createSubscription = async ({
+  address,
+  email = null,
+  pallets,
+}) => {
   try {
     if (!address) {
       console.log(`No address was provided for subscription.`);
       return 400;
     }
-    let sub =
-      (await subscriptionModel.get(address)) ||
-      new subscriptionModel({ address, nonce: randomAsNumber().toString() });
-
-    pallets?.forEach((pallet) => {
-      if (pallet?.name) {
-        sub[`${pallet?.name}`] = pallet;
+    let sub = await SubscriptionModel.get(address);
+    if (!sub) {
+      // create a new subscription only if no subscription already exists for the address.
+      sub = new SubscriptionModel({
+        address,
+        nonce: randomAsNumber().toString(),
+      });
+      if (pallets?.length !== 0) {
+        sub.pallets = [...pallets];
       }
-    });
-    if (email) {
-      sub.email = email;
+
+      if (email) {
+        sub.email = email;
+      }
+      await sub.save();
+      // created
+      return 201;
+    } else {
+      // conflict, already exists
+      return 409;
     }
-    await sub.save();
-    return 200;
   } catch (error) {
     console.error(error);
     return 500;
@@ -38,19 +49,17 @@ export const updatePalletSubscriptions = async ({
       return 400;
     }
 
-    let sub = await subscriptionModel.get(address);
+    let sub = await SubscriptionModel.get(address);
     if (sub?.nonce != nonce) {
       return 403;
     }
     if (sub) {
-      pallets?.forEach((pallet) => {
-        if (pallet?.name) {
-          sub[pallet?.name] = pallet;
-        }
-      });
+      sub.pallets = pallets;
       await sub.save();
+      return 200;
+    } else {
+      return 404;
     }
-    return 200;
   } catch (error) {
     console.error(error);
     return 500;
@@ -64,7 +73,7 @@ export const getSubscriptions = async (address) => {
       return { status: 400 };
     }
 
-    let sub = await subscriptionModel.get(address);
+    let sub = await SubscriptionModel.get(address);
     return { status: 200, sub };
   } catch (error) {
     console.error(error);
@@ -78,7 +87,7 @@ export const getSubscriptionsSecure = async ({ address, nonce }) => {
       console.log(`No address was provided for subscription.`);
       return { status: 400 };
     }
-    let sub = await subscriptionModel.get(address);
+    let sub = await SubscriptionModel.get(address);
     if (sub?.nonce != nonce) {
       return { status: 403 };
     }
@@ -102,7 +111,7 @@ export const getNewAuthNonce = async (address) => {
       console.log(`No address was provided.`);
       return { status: 400 };
     }
-    let sub = await subscriptionModel.update(
+    let sub = await SubscriptionModel.update(
       { address },
       { $ADD: { auth_nonce: [auth_nonce] } }
     );
@@ -128,7 +137,7 @@ export const setAuthenticationToken = async ({
       console.log(`No authentication token was provided.`);
       return 400;
     }
-    let sub = await subscriptionModel.get(address);
+    let sub = await SubscriptionModel.get(address);
     if (sub) {
       if (sub?.auth_nonce?.has(nonce)) {
         sub.auth_nonce.delete(nonce);
@@ -172,7 +181,7 @@ export const revokeAuthenticationToken = async ({ address, auth_token }) => {
       console.log(`No authentication token was provided.`);
       return 400;
     }
-    let sub = await subscriptionModel.update(
+    let sub = await SubscriptionModel.update(
       { address },
       { $DELETE: { auth_tokens: [auth_token] } }
     );

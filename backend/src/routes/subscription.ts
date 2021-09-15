@@ -5,7 +5,6 @@ import {
   getSubscriptionsSecure,
   getSubscriptions,
 } from '../controllers/subscriptionController';
-import pallet from '../models/pallet';
 import auth from '../middlewares/auth';
 
 const router = express.Router();
@@ -14,11 +13,10 @@ const router = express.Router();
 router.get('/unsubscribe/:address/:nonce', async (req, res) => {
   try {
     // currently will unsubscribe from council events:
-    let unsubscribedPallets = [new pallet({ name: Pallets.COUNCIL })];
     let status = await updatePalletSubscriptions({
       address: req.params.address,
       nonce: req.params.nonce,
-      pallets: unsubscribedPallets,
+      pallets: [],
     });
     if (status < 400) {
       res
@@ -39,10 +37,10 @@ router.get('/unsubscribe/:address/:nonce', async (req, res) => {
 router.get('/subscribe/:address/:nonce', async (req, res) => {
   try {
     let subscribedPallets = [
-      new pallet({
+      {
         name: Pallets.COUNCIL,
-        events: new Set(['proposed']),
-      }),
+        events: ['proposed'],
+      },
     ];
     let status = await updatePalletSubscriptions({
       address: req.params.address,
