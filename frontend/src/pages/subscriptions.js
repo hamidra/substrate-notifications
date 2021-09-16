@@ -1,13 +1,24 @@
-import { Container, Row, Form, Col } from 'react-bootstrap';
+import { Container, Row, Form, Col, Button } from 'react-bootstrap';
 import { useAuthentication } from '../authentication/authContext';
 import { useEffect, useState } from 'react';
 import apiClient from '../apiClient';
 import { useHistory } from 'react-router';
+import { Formik, Form as FormikForm, FieldArray, Field } from 'formik';
+import CuratedPallets from '../pallets';
 
 const authzErrors = [401, 403];
+
+const toCapitalize = (str) => {
+  let capitalized = str;
+  if (str && typeof str === 'string') {
+    capitalized =
+      str.charAt(0).toUpperCase() + str.slice(1).toLocaleLowerCase();
+  }
+  return capitalized;
+};
 export default function Subscriptions() {
   let { isAuthenticated, address } = useAuthentication();
-  let [pallets, setPallets] = useState(null);
+  let [pallets, setPallets] = useState([]);
   let history = useHistory();
 
   useEffect(() => {
@@ -16,7 +27,8 @@ export default function Subscriptions() {
       .then(({ status, data }) => {
         if (status === 200) {
           console.log(data);
-          setPallets(data?.pallets);
+          let curatedPallets = new CuratedPallets(data?.pallets);
+          setPallets(curatedPallets?.pallets);
         } else if (authzErrors.includes(status)) {
           // the was an issue with user authnetication
           history.push('login');
@@ -30,8 +42,7 @@ export default function Subscriptions() {
       // add cleanup to cancel pending requests
     };
   }, [isAuthenticated, address, history]);
-
-  console.log(pallets);
+  let initialValues = { pallets: [...pallets] };
   return (
     <>
       <Container
@@ -50,24 +61,52 @@ export default function Subscriptions() {
         </Row>
         <Row>
           <Col>
-            <Form>
-              {['checkbox', 'radio'].map((type) => (
-                <div key={`default-${type}`} className="mb-3">
-                  <Form.Check
-                    type={type}
-                    id={`default-${type}`}
-                    label={`default ${type}`}
-                  />
+            <Formik enableReinitialize initialValues={{ ...initialValues }}>
+              {({ values }) => {
+                return (
+                  <Form>
+                    <FieldArray name="pallets">
+                      {({ add }) =>
+                        values.pallets?.map((pallet, palletIdx) => (
+                          <div
+                            className="form-row border border-primary rounded px-4 pt-4 pb-0 mb-3"
+                            key={palletIdx}>
+                            <div className="col-12">
+                              <h4>{toCapitalize(pallet?.name)}</h4>
+                            </div>
 
-                  <Form.Check
-                    disabled
-                    type={type}
-                    label={`disabled ${type}`}
-                    id={`disabled-default-${type}`}
-                  />
-                </div>
-              ))}
-            </Form>
+                            {pallet.events?.map(({ name }, eventIdx) => (
+                              <div key={eventIdx} className="col-12">
+                                <div className="form-group form-check">
+                                  <Field
+                                    key={eventIdx}
+                                    type="checkbox"
+                                    name={`pallets.${palletIdx}.events.${eventIdx}.isSubscribed`}
+                                    className="form-check-input"
+                                  />
+                                  <label className="form-check-label">
+                                    {toCapitalize(name)}
+                                  </label>
+                                  <small className="d-block form-text text-muted">
+                                    Get notified when a motion has been
+                                    proposed.
+                                  </small>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ))
+                      }
+                    </FieldArray>
+                    <Row>
+                      <Col className="d-flex justify-content-center">
+                        <Button style={{ minWidth: '200px' }}>Save</Button>
+                      </Col>
+                    </Row>
+                  </Form>
+                );
+              }}
+            </Formik>
           </Col>
         </Row>
       </Container>
