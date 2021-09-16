@@ -2,10 +2,12 @@ import express from 'express';
 import { Pallets } from '../chain';
 import {
   updatePalletSubscriptions,
+  updatePalletSubscriptionsSecure,
   getSubscriptionsSecure,
   getSubscriptions,
 } from '../controllers/subscriptionController';
 import auth from '../middlewares/auth';
+import { PalletSchema } from '../models/pallet';
 
 const router = express.Router();
 
@@ -13,7 +15,7 @@ const router = express.Router();
 router.get('/unsubscribe/:address/:nonce', async (req, res) => {
   try {
     // currently will unsubscribe from council events:
-    let status = await updatePalletSubscriptions({
+    let status = await updatePalletSubscriptionsSecure({
       address: req.params.address,
       nonce: req.params.nonce,
       pallets: [],
@@ -42,7 +44,7 @@ router.get('/subscribe/:address/:nonce', async (req, res) => {
         events: ['proposed'],
       },
     ];
-    let status = await updatePalletSubscriptions({
+    let status = await updatePalletSubscriptionsSecure({
       address: req.params.address,
       nonce: req.params.nonce,
       pallets: subscribedPallets,
@@ -95,4 +97,29 @@ router.get('/:address', auth, async (req, res) => {
     res.status(500).send();
   }
 });
+
+router.post('/:address/pallets', auth, async (req, res) => {
+  try {
+    let pallets: any[] = [];
+    let curatedPallets = new Set(Object.values(Pallets));
+    if (req?.body?.pallets) {
+      for (let pallet of req.body.pallets) {
+        if (curatedPallets.has(pallet?.name?.toLowerCase())) {
+          pallets.push({ name: pallet.name, events: pallet.events });
+        }
+      }
+      let status = await updatePalletSubscriptions({
+        address: req.params.address,
+        pallets,
+      });
+      res.status(status).send();
+    } else {
+      res.status(400).send();
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send();
+  }
+});
+
 export default router;

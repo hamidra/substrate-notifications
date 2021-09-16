@@ -46,6 +46,25 @@ const apiClient = {
       return { status: response?.status };
     }
   },
+  updatePallets: async (address, pallets) => {
+    if (!address) {
+      throw new Error(`No address was provided update subscription.`);
+    }
+    // axios request
+    try {
+      let apiUrl = new URL(`management/${address}/pallets`, apiBaseUrl);
+      let response = await axios.post(
+        apiUrl.toString(),
+        { pallets },
+        {
+          withCredentials: true,
+        }
+      );
+      return { status: response?.status, data: response?.data };
+    } catch ({ response }) {
+      return { status: response?.status };
+    }
+  },
 };
 
 export default apiClient;

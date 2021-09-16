@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import apiClient from '../apiClient';
 import { useHistory } from 'react-router';
 import { Formik, Form as FormikForm, FieldArray, Field } from 'formik';
-import CuratedPallets from '../pallets';
+import Pallets from '../pallets';
 
 const authzErrors = [401, 403];
 
@@ -26,9 +26,9 @@ export default function Subscriptions() {
       .getSubscription(address)
       .then(({ status, data }) => {
         if (status === 200) {
-          console.log(data);
-          let curatedPallets = new CuratedPallets(data?.pallets);
-          setPallets(curatedPallets?.pallets);
+          console.log(data || 'no data');
+          let curatedPallets = Pallets.deserialize(data?.pallets);
+          setPallets(curatedPallets || []);
         } else if (authzErrors.includes(status)) {
           // the was an issue with user authnetication
           history.push('login');
@@ -42,7 +42,25 @@ export default function Subscriptions() {
       // add cleanup to cancel pending requests
     };
   }, [isAuthenticated, address, history]);
-  let initialValues = { pallets: [...pallets] };
+  const updatePallets = (pallets) => {
+    console.log(pallets);
+    let serializedPallets = Pallets.serialize(pallets);
+    apiClient
+      .updatePallets(address, serializedPallets)
+      .then(({ status, data }) => {
+        if (status === 200) {
+          console.log(data);
+        } else if (authzErrors.includes(status)) {
+          // the was an issue with user authnetication
+          history.push('login');
+        }
+      })
+      .catch((error) => {
+        console.log(
+          `there was an issue while updating the user data: ${error}`
+        );
+      });
+  };
   return (
     <>
       <Container
@@ -61,10 +79,15 @@ export default function Subscriptions() {
         </Row>
         <Row>
           <Col>
-            <Formik enableReinitialize initialValues={{ ...initialValues }}>
-              {({ values }) => {
+            <Formik
+              enableReinitialize
+              initialValues={{ pallets }}
+              onSubmit={async (values) => {
+                updatePallets(values?.pallets);
+              }}>
+              {({ values, submitForm }) => {
                 return (
-                  <Form>
+                  <FormikForm>
                     <FieldArray name="pallets">
                       {({ add }) =>
                         values.pallets?.map((pallet, palletIdx) => (
@@ -100,10 +123,14 @@ export default function Subscriptions() {
                     </FieldArray>
                     <Row>
                       <Col className="d-flex justify-content-center">
-                        <Button style={{ minWidth: '200px' }}>Save</Button>
+                        <Button
+                          style={{ minWidth: '200px' }}
+                          onClick={() => submitForm()}>
+                          Save
+                        </Button>
                       </Col>
                     </Row>
-                  </Form>
+                  </FormikForm>
                 );
               }}
             </Formik>

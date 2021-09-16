@@ -38,7 +38,7 @@ export const createSubscription = async ({
   }
 };
 
-export const updatePalletSubscriptions = async ({
+export const updatePalletSubscriptionsSecure = async ({
   address,
   nonce,
   pallets,
@@ -53,6 +53,27 @@ export const updatePalletSubscriptions = async ({
     if (sub?.nonce != nonce) {
       return 403;
     }
+    if (sub) {
+      sub.pallets = pallets;
+      await sub.save();
+      return 200;
+    } else {
+      return 404;
+    }
+  } catch (error) {
+    console.error(error);
+    return 500;
+  }
+};
+
+export const updatePalletSubscriptions = async ({ address, pallets }) => {
+  try {
+    if (!address) {
+      console.log(`No address was provided for subscription.`);
+      return 400;
+    }
+
+    let sub = await SubscriptionModel.get(address);
     if (sub) {
       sub.pallets = pallets;
       await sub.save();

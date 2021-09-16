@@ -10,6 +10,9 @@ import authorization from './routes/authorization';
 const app = express();
 const port = process.env.HTTP_PORT || 8080; // default port to listen
 
+// set body parsers
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 // set cookie parser
 app.use(cookieParser());
 
