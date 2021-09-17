@@ -18,7 +18,7 @@ const toCapitalize = (str) => {
 };
 export default function Subscriptions() {
   let { isAuthenticated, address } = useAuthentication();
-  let [pallets, setPallets] = useState([]);
+  let [pallets, setPallets] = useState(Pallets.curate([]));
   let history = useHistory();
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function Subscriptions() {
       .then(({ status, data }) => {
         if (status === 200) {
           console.log(data || 'no data');
-          let curatedPallets = Pallets.deserialize(data?.pallets);
+          let curatedPallets = Pallets.curate(data?.pallets);
           setPallets(curatedPallets || []);
         } else if (authzErrors.includes(status)) {
           // the was an issue with user authnetication
