@@ -5,9 +5,11 @@
   "main": "./src/index.ts",
   "scripts": {
     "test": "jest",
-    "start": "npm run build && node build/index.js",
+    "start": "yarn build && node build/index.js",
     "start:dev": "nodemon",
-    "build": "rimraf ./build && tsc"
+    "build": "rimraf ./build && tsc",
+    "build:front": "rimraf ./build/front && yarn --cwd ../frontend build && mkdir -p build/front && cp -Rf ../frontend/build/* ./build/front",
+    "build:fs": "yarn build && yarn build:front"
   },
   "repository": {
     "type": "git",

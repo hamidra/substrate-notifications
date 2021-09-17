@@ -10,6 +10,9 @@ import authorization from './routes/authorization';
 const app = express();
 const port = process.env.HTTP_PORT || 8080; // default port to listen
 
+// set static frontend
+app.use(express.static(__dirname + '/front'));
+
 // set body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
