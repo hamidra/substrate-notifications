@@ -7,6 +7,7 @@ import { apiKey } from '../secrets/sendinBlue-apikey.json';
 import { getSubscriptions } from '../controllers/subscriptionController';
 import url, { URL } from 'url';
 import * as config from '../config.json';
+import { getEventSubscriptionSet } from '../utility';
 
 let allowedList = new Set(config.ALLOW_LIST || []);
 let preview = true;
@@ -30,15 +31,16 @@ export class EmailChannel {
     this.subscribers.forEach(({ address }) =>
       getSubsPromises.push(getSubscriptions(address))
     );
-    let subs = await Promise.all(getSubsPromises);
+    let subs = (await Promise.all(getSubsPromises)).map(
+      (result) => result?.sub
+    );
 
     // Filter the subscriptions that have subscribed for that pallet
     subs = subs.filter(
       (sub) =>
         event?.pallet &&
         event?.method &&
-        event.pallet in sub &&
-        sub[event.pallet].events.has(event.method)
+        getEventSubscriptionSet(sub, event?.pallet).has(event.method)
     );
 
     // if in preview only send emails to the allowed email list
@@ -68,7 +70,7 @@ export class EmailProvider {
 
     switch (event?.pallet) {
       case Pallets.COUNCIL:
-        if (event?.method === 'Proposed') {
+        if (event?.method?.toLowerCase() === 'proposed') {
           let params = {
             subscribeUrl,
             unsubscribeUrl,

@@ -35,7 +35,7 @@ const createWatcher = async () => {
 
   //injecting this as a test account
   emailChannelSubscribers.push({
-    address: '1pDEYdBRd8G4VNZDTiojJ7kxwpYAvb9wq5whdSBDn1ASnwW',
+    address: '5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY',
     email: 'hamid.alipour@gmail.com',
   });
 
