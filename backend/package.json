@@ -43,6 +43,8 @@
   "dependencies": {
     "@polkadot/api": "^5.9.1",
     "@polkadot/types": "^5.9.1",
+    "@polkadot/util-crypto": "^7.2.1",
+    "@polkadot/util": "^7.2.1",
     "@sendinblue/client": "^3.0.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",

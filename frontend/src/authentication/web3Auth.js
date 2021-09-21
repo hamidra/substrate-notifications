@@ -1,4 +1,8 @@
-import { signatureVerify, cryptoWaitReady } from '@polkadot/util-crypto';
+import {
+  signatureVerify,
+  cryptoWaitReady,
+  decodeAddress,
+} from '@polkadot/util-crypto';
 import { hexToU8a, stringToHex, stringToU8a } from '@polkadot/util';
 import { atob, btoa } from 'js-base64';
 
@@ -75,11 +79,12 @@ export const verify_w3token = async (w3token) => {
       return { error: 'invalid token.  address claim is missing' };
     }
     let signature = base64ToU8(b64_signature);
+    let publicKey = decodeAddress(address);
     await cryptoWaitReady();
     let { isValid } = signatureVerify(
       `${b64_header}.${b64_payload}`,
       signature,
-      address
+      publicKey
     );
     if (!isValid) {
       return { error: 'invalid token. bad signature' };
