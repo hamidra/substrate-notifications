@@ -5,6 +5,9 @@ import apiClient from '../apiClient';
 import { useHistory } from 'react-router';
 import { Formik, Form as FormikForm, FieldArray, Field } from 'formik';
 import Pallets from '../pallets';
+import { useSubstrate } from '../substrate-lib';
+import { stringHelpers } from '../utils';
+import { AccountItem } from '../components/AccountSelector';
 
 const authzErrors = [401, 403];
 
@@ -16,8 +19,11 @@ const toCapitalize = (str) => {
   }
   return capitalized;
 };
+
 export default function Subscriptions() {
   let { isAuthenticated, address } = useAuthentication();
+  let { keyring } = useSubstrate();
+  let account = keyring?.getAccount(address);
   let [pallets, setPallets] = useState(Pallets.curate([]));
   let history = useHistory();
 
@@ -51,7 +57,7 @@ export default function Subscriptions() {
         if (status === 200) {
           console.log(data);
         } else if (authzErrors.includes(status)) {
-          // the was an issue with user authnetication
+          // there was an issue with user authnetication
           history.push('login');
         }
       })
@@ -66,10 +72,10 @@ export default function Subscriptions() {
       <Container
         className="justify-content-center align-items-center"
         style={{ width: 600, maxWidth: '100%' }}>
-        <Row className="my-2 my-md-5 justify-content-center align-items-center text-center">
-          <Col className="my-md-3 d-flex justify-content-center align-items-center">
+        <Row className="justify-content-center align-items-center text-center">
+          <Col className="my-2 d-flex justify-content-center align-items-center">
             <div>
-              <h3>Manage your notifications</h3>
+              <h4>Manage your notifications</h4>
               <p>
                 Let us know what events you are interested in. We will update
                 your preferences.
@@ -78,6 +84,15 @@ export default function Subscriptions() {
           </Col>
         </Row>
         <Row>
+          <Col className="d-flex my-1 align-items-center justify-content-between">
+            <AccountItem account={account || { address }} />
+            <button
+              className="btn btn-sm border-0"
+              onClick={() => history.push('login')}>
+              Change Account →
+            </button>
+          </Col>
+          <div className="w-100" />
           <Col>
             <Formik
               enableReinitialize

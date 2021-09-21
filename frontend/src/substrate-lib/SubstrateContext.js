@@ -1,6 +1,7 @@
 import React, { useReducer, useContext, useMemo } from 'react';
 import keyring from '@polkadot/ui-keyring';
 import config from '../config';
+import { loadExtension } from './extension';
 ///
 // Initial state for `useReducer`
 
@@ -73,6 +74,10 @@ const SubstrateContextProvider = (props) => {
 
   // load keyring
   loadKeyring(state, dispatch);
+
+  // load extension
+  loadExtension(state, dispatch);
+
   console.log(state);
 
   // the context provider will refresh everytime a new object is assigned to it's value,

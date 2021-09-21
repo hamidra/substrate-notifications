@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Spinner } from 'react-bootstrap';
 import { useSubstrate } from '../substrate-lib';
 import { DownloadSimple } from 'phosphor-react';
-import AccountSelector from '../components/AccountSelector';
+import { AccountSelector } from '../components/AccountSelector';
 import CardHeader from '../components/CardHeader';
-import { loadExtension } from '../substrate-lib/extension';
 import { issue_w3token } from '../authentication/web3Auth';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import apiClient from '../apiClient';
@@ -193,10 +192,6 @@ export default function Web3Login({ loginHandler }) {
       );
     }
   };
-
-  useEffect(() => {
-    loadExtension(state, dispatch);
-  }, [dispatch, state]);
 
   return (
     <>

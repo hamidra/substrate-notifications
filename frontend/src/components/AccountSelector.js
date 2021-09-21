@@ -4,37 +4,41 @@ import { stringHelpers } from '../utils';
 import Identicon from '@polkadot/react-identicon';
 import { CaretDown } from 'phosphor-react';
 
-const namePaddingLen = 10;
-const addressPaddingLen = 5;
+const namePaddingDefault = 10;
+const addressPaddingDefault = 5;
 
-const AccountToggleItem = ({ account }) => {
+export const AccountItem = ({ account, namePadding, addressPadding }) => {
   const nameStr = stringHelpers.truncateMiddle(
     account?.meta?.name,
-    namePaddingLen
+    namePadding || namePaddingDefault
   );
   const addressStr = stringHelpers.truncateMiddle(
     account?.address,
-    addressPaddingLen
+    addressPadding || addressPaddingDefault
   );
+  return (
+    <Media className="d-flex align-items-center">
+      <div className="mr-2">
+        <Identicon value={account?.address} size={40} theme="polkadot" />
+      </div>
+      <Media.Body>
+        <Row className="flex-column flex-sm-row">
+          <Col>
+            <div className="text-left">{nameStr}</div>
+            <div className="text-left">{addressStr}</div>
+          </Col>
+        </Row>
+      </Media.Body>
+    </Media>
+  );
+};
+
+const AccountToggleItem = ({ account }) => {
   const caretSize = 24;
   const caretMargin = 5;
   let ContentElement;
   if (account) {
-    ContentElement = (
-      <Media className="d-flex align-items-center">
-        <div className="mr-2">
-          <Identicon value={account?.address} size={40} theme="polkadot" />
-        </div>
-        <Media.Body>
-          <Row className="flex-column flex-sm-row">
-            <Col>
-              <div className="text-left">{nameStr}</div>
-              <div className="text-left">{addressStr}</div>
-            </Col>
-          </Row>
-        </Media.Body>
-      </Media>
-    );
+    ContentElement = <AccountItem account={account} />;
   } else {
     ContentElement = (
       <div style={{ marginLeft: caretSize + caretMargin }}>Select Account</div>
@@ -95,11 +99,11 @@ const AccountDropdownItem = React.forwardRef(
   ({ account, balance, token, onClick, active }, ref) => {
     const nameStr = stringHelpers.truncateMiddle(
       account?.meta?.name,
-      namePaddingLen
+      namePaddingDefault
     );
     const addressStr = stringHelpers.truncateMiddle(
       account?.address,
-      addressPaddingLen
+      namePaddingDefault
     );
     return (
       <>
@@ -126,7 +130,7 @@ const AccountDropdownItem = React.forwardRef(
     );
   }
 );
-export default function AccounSelector({
+export const AccountSelector = function ({
   accounts,
   selectedAccount,
   setSelectedAccount,
@@ -147,7 +151,7 @@ export default function AccounSelector({
           <AccountToggleItem account={selectedAccount} />
         </Dropdown.Toggle>
         <Dropdown.Menu style={{ minWidth: '100%' }} as={AccountDropdownMenu}>
-          {accounts.map((account, idx) => {
+          {accounts?.map((account, idx) => {
             return (
               <Dropdown.Item
                 key={account.address || idx}
@@ -162,4 +166,4 @@ export default function AccounSelector({
       </Dropdown>
     </>
   );
-}
+};
