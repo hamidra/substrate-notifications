@@ -1,6 +1,7 @@
 import axios from 'axios';
+import config from '../config';
 
-const apiBaseUrl = 'http://localhost:8080';
+const apiBaseUrl = config.BACKEND_URL;
 const apiClient = {
   getNonce: async (address) => {
     if (!address) {

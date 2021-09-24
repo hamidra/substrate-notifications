@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "start": "yarn build && node build/index.js",
+    "start:fs": "yarn build:fs && node build/index.js",
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc",
     "build:front": "rimraf ./build/front && yarn --cwd ../frontend build && mkdir -p build/front && cp -Rf ../frontend/build/* ./build/front",

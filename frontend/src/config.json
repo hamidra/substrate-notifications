@@ -1,4 +1,5 @@
 {
-  "APP_NAME": "dotdrop",
-  "DEVELOPMENT_KEYRING": true
+  "APP_NAME": "Substrate Notifications",
+  "DEVELOPMENT_KEYRING": true,
+  "BACKEND_URL": "http://localhost:8080"
 }
