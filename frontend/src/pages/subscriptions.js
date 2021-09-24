@@ -48,24 +48,19 @@ export default function Subscriptions() {
       // add cleanup to cancel pending requests
     };
   }, [isAuthenticated, address, history]);
-  const updatePallets = (pallets) => {
+  const updatePallets = async (pallets) => {
     console.log(pallets);
     let serializedPallets = Pallets.serialize(pallets);
-    apiClient
-      .updatePallets(address, serializedPallets)
-      .then(({ status, data }) => {
-        if (status === 200) {
-          console.log(data);
-        } else if (authzErrors.includes(status)) {
-          // there was an issue with user authnetication
-          history.push('login');
-        }
-      })
-      .catch((error) => {
-        console.log(
-          `there was an issue while updating the user data: ${error}`
-        );
-      });
+    let { status } = await apiClient.updatePallets(address, serializedPallets);
+
+    if (status === 200) {
+      return pallets;
+    } else if (authzErrors.includes(status)) {
+      // there was an issue with user authnetication
+      history.push('login');
+    } else {
+      throw new Error(`Update failed. Server Status Code: ${status}`);
+    }
   };
   return (
     <>
@@ -97,10 +92,18 @@ export default function Subscriptions() {
             <Formik
               enableReinitialize
               initialValues={{ pallets }}
-              onSubmit={async (values) => {
-                updatePallets(values?.pallets);
+              onSubmit={async (values, actions) => {
+                try {
+                  let updatedPallets = await updatePallets(values?.pallets);
+                  setPallets(updatedPallets);
+                  actions.setSubmitting(false);
+                  actions.resetForm();
+                } catch (error) {
+                  console.log(error);
+                  actions.setSubmitting(false);
+                }
               }}>
-              {({ values, submitForm }) => {
+              {({ values, submitForm, dirty }) => {
                 return (
                   <FormikForm>
                     <FieldArray name="pallets">
@@ -140,7 +143,8 @@ export default function Subscriptions() {
                       <Col className="d-flex justify-content-center">
                         <Button
                           style={{ minWidth: '200px' }}
-                          onClick={() => submitForm()}>
+                          onClick={() => submitForm()}
+                          disabled={!dirty}>
                           Save
                         </Button>
                       </Col>

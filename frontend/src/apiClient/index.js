@@ -61,7 +61,7 @@ const apiClient = {
           withCredentials: true,
         }
       );
-      return { status: response?.status, data: response?.data };
+      return { status: response?.status };
     } catch ({ response }) {
       return { status: response?.status };
     }
