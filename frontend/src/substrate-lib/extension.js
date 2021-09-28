@@ -32,7 +32,7 @@ export const loadExtension = async (state, dispatch, chainInfo) => {
           !loadedSet.has(account.address) &&
           (!chainInfo?.genesisHash ||
             !account.meta?.genesisHash ||
-            account.meta?.genesisHash === chainInfo?.genesisHash?.toHex())
+            account.meta?.genesisHash.toString() === chainInfo?.genesisHash)
         );
       });
       console.log(newAccounts);

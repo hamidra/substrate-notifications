@@ -14,10 +14,8 @@ RUN yarn install
 # Bundle app source
 COPY ./ ./
 
-ENV HTTP_PORT="80"
-ENV HTTPS_PORT="443"
+ENV HTTP_PORT="8081"
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8081
 
 CMD yarn start | split -b 100k - log- 

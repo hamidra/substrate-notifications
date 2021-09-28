@@ -168,7 +168,7 @@ export default function Web3Login({ loginHandler }) {
   const { dispatch, ...state } = useSubstrate();
   const { keyring, extensionState } = state;
 
-  const accounts = keyring.getPairs();
+  const accounts = keyring?.getPairs() || [];
 
   const params = useParams();
   const isValidAddress =

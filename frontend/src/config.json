@@ -1,5 +1,6 @@
 {
   "APP_NAME": "Substrate Notifications",
-  "DEVELOPMENT_KEYRING": true,
-  "BACKEND_URL": "http://localhost:8080"
+  "DEVELOPMENT_KEYRING": false,
+  "BACKEND_URL": "https://kusama.notifications.deepnosis.com/",
+  "NETWORK": "kusama"
 }
