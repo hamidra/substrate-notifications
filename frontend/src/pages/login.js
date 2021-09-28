@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Spinner } from 'react-bootstrap';
-import { useSubstrate } from '../substrate-lib';
+import { useSubstrate, utils } from '../substrate-lib';
 import { DownloadSimple } from 'phosphor-react';
 import { AccountSelector } from '../components/AccountSelector';
 import CardHeader from '../components/CardHeader';
@@ -8,7 +8,7 @@ import { issue_w3token } from '../authentication/web3Auth';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import apiClient from '../apiClient';
 import ErrorModal from '../components/Error';
-import { useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { useAuthentication } from '../authentication/authContext';
 
 const Connecting = () => {
@@ -65,9 +65,10 @@ const DownloadExtension = () => {
   );
 };
 
-const LoginWithExtension = ({ loginHandler, accounts }) => {
+const LoginWithExtension = ({ loginHandler, accounts, initialAccount }) => {
   const history = useHistory();
-  const [selectedAccount, setSelectedAccount] = useState(null);
+
+  const [selectedAccount, setSelectedAccount] = useState(initialAccount);
   const [inProgress, setInProgress] = useState(false);
   const [error, setError] = useState(null);
   const [{ signer, canSign }, setSigner] = useState({
@@ -90,7 +91,7 @@ const LoginWithExtension = ({ loginHandler, accounts }) => {
             // set address
             setAddress(account?.address);
             // go to next page
-            history.push('/subscriptions');
+            history.push('/management');
           }
         })
         .catch((error) => {
@@ -169,6 +170,13 @@ export default function Web3Login({ loginHandler }) {
 
   const accounts = keyring.getPairs();
 
+  const params = useParams();
+  const isValidAddress =
+    params?.address && utils.validateAddress(params?.address);
+  const initialAccount = isValidAddress
+    ? accounts.find((account) => account?.address === params?.address)
+    : null;
+
   const _loginHandler = async (signingAccount) => {
     let { status, nonce } = await apiClient.getNonce(
       signingAccount?.account?.address
@@ -179,8 +187,6 @@ export default function Web3Login({ loginHandler }) {
         w3token,
         signingAccount?.account?.address
       );
-      console.log(nonce);
-      console.log(w3token);
       console.log(`authenticated:${authResult}`);
       return authResult;
     } else {
@@ -208,6 +214,7 @@ export default function Web3Login({ loginHandler }) {
                   <LoginWithExtension
                     loginHandler={_loginHandler}
                     accounts={accounts}
+                    initialAccount={initialAccount}
                   />
                 ) : (
                   <Connecting />

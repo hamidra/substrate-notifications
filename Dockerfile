@@ -18,11 +18,9 @@ RUN yarn install
 WORKDIR /usr/src/app/backend
 RUN yarn install
 
-ENV HTTP_PORT="80"
-ENV HTTPS_PORT="443"
+ENV HTTP_PORT="8081"
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8081
 
 # start fullstack service
 WORKDIR /usr/src/app/backend

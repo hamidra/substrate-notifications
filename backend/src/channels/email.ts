@@ -66,6 +66,10 @@ export class EmailProvider {
       `management/unsubscribe/${sub?.address}/${sub?.nonce}`,
       config.API_ENDPOINT_URL
     ).href?.split('://')?.[1];
+    let manageUrl = new URL(
+      `/#/management/${sub?.address}`,
+      config.API_ENDPOINT_URL
+    ).href?.split('://')?.[1];
     let recipient = { email: sub?.email };
 
     switch (event?.pallet) {
@@ -74,6 +78,7 @@ export class EmailProvider {
           let params = {
             subscribeUrl,
             unsubscribeUrl,
+            manageUrl,
             proposedBy: event?.params?.[0]?.toHuman(),
             proposalIndex: event?.params?.[1]?.toHuman(),
             proposalHash: event?.params?.[2]?.toHuman(),

@@ -10,6 +10,7 @@ import {
 import {
   Switch,
   Route,
+  matchPath,
   HashRouter as Router,
   Redirect,
   useLocation,
@@ -19,8 +20,9 @@ import Subscriptions from './pages/subscriptions';
 function SecureRoute({ children, ...props }) {
   let { isAuthenticated } = useAuthentication();
   let location = useLocation();
-  console.log(isAuthenticated);
-  console.log(location);
+  // match the current location with current path
+  const { params } = matchPath(location.pathname, { ...props });
+  let loginPath = params.address ? `/login/${params.address}` : '/login';
   return (
     <Route {...props}>
       {isAuthenticated ? (
@@ -28,7 +30,7 @@ function SecureRoute({ children, ...props }) {
       ) : (
         <Redirect
           to={{
-            pathname: '/login',
+            pathname: loginPath,
             state: { from: location },
           }}
         />
@@ -57,12 +59,14 @@ function Body() {
   return (
     <>
       <Switch>
-        <Route path="/login">{keyring && <Login />}</Route>
-        <SecureRoute path="/manage">
+        <Route exact path={['/login', '/login/:address']}>
+          {keyring && <Login />}
+        </Route>
+        <SecureRoute exact path={['/management', '/management/:address']}>
           <Subscriptions />
         </SecureRoute>
         <SecureRoute path="/">
-          <Redirect to={'/manage'} />
+          <Redirect to={'/login'} />
         </SecureRoute>
       </Switch>
     </>

@@ -1,12 +1,11 @@
-import { Container, Row, Form, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useAuthentication } from '../authentication/authContext';
 import { useEffect, useState } from 'react';
 import apiClient from '../apiClient';
-import { useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { Formik, Form as FormikForm, FieldArray, Field } from 'formik';
 import Pallets from '../pallets';
 import { useSubstrate } from '../substrate-lib';
-import { stringHelpers } from '../utils';
 import { AccountItem } from '../components/AccountSelector';
 
 const authzErrors = [401, 403];
@@ -22,32 +21,37 @@ const toCapitalize = (str) => {
 
 export default function Subscriptions() {
   let { isAuthenticated, address } = useAuthentication();
+  let params = useParams();
+  let loginPath = params.address ? `/login/${params.address}` : '/login';
   let { keyring } = useSubstrate();
   let account = keyring?.getAccount(address);
   let [pallets, setPallets] = useState(Pallets.curate([]));
   let history = useHistory();
 
   useEffect(() => {
-    apiClient
-      .getSubscription(address)
-      .then(({ status, data }) => {
-        if (status === 200) {
-          console.log(data || 'no data');
-          let curatedPallets = Pallets.curate(data?.pallets);
-          setPallets(curatedPallets || []);
-        } else if (authzErrors.includes(status)) {
-          // the was an issue with user authnetication
-          history.push('login');
-        }
-      })
-      .catch((error) => {
-        console.log(`there was an issue fetching user data: ${error}`);
-      });
-
+    if (params?.address && params?.address !== address) {
+      history.push(loginPath);
+    } else {
+      apiClient
+        .getSubscription(address)
+        .then(({ status, data }) => {
+          if (status === 200) {
+            console.log(data || 'no data');
+            let curatedPallets = Pallets.curate(data?.pallets);
+            setPallets(curatedPallets || []);
+          } else if (authzErrors.includes(status)) {
+            // the was an issue with user authnetication
+            history.push(loginPath);
+          }
+        })
+        .catch((error) => {
+          console.log(`there was an issue fetching user data: ${error}`);
+        });
+    }
     return () => {
       // add cleanup to cancel pending requests
     };
-  }, [isAuthenticated, address, history]);
+  }, [isAuthenticated, address, history, params, loginPath]);
   const updatePallets = async (pallets) => {
     console.log(pallets);
     let serializedPallets = Pallets.serialize(pallets);
@@ -57,7 +61,7 @@ export default function Subscriptions() {
       return pallets;
     } else if (authzErrors.includes(status)) {
       // there was an issue with user authnetication
-      history.push('login');
+      history.push(loginPath);
     } else {
       throw new Error(`Update failed. Server Status Code: ${status}`);
     }
@@ -83,7 +87,7 @@ export default function Subscriptions() {
             <AccountItem account={account || { address }} />
             <button
               className="btn btn-sm border-0"
-              onClick={() => history.push('login')}>
+              onClick={() => history.push(loginPath)}>
               Change Account →
             </button>
           </Col>

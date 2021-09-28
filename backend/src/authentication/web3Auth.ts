@@ -40,7 +40,6 @@ const signToken = async (jwt, signingAccount) => {
     let signature = account.sign(stringToU8a(jwt));
     signature_base64 = u8aToBase64(signature);
   }
-  console.log(base64ToU8(signature_base64));
   return `${jwt}.${signature_base64}`;
 };
 
